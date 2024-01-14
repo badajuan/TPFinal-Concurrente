@@ -5,18 +5,18 @@ public class TaskFactory {
     
     // Ver en https://refactoring.guru/design-patterns/singleton/java/example#example-2 porque es volatile
     private static volatile TaskFactory instance;
-
+    
     private int loadersCounter;
     private int filtersCounter;
     private int resizersCounter;
     private int exportersCounter;
-
+    
     private int maxLoaders;
     private int maxFilters;
     private int maxResizers;
     private int maxExporters;
 
-    
+
     /**
      * Constructor. Privado para asegurar singleton.
      * @param maxLoaders Maxima cantidad de loaders permitidos.

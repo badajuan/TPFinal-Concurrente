@@ -1,13 +1,29 @@
 package com.soporte_tecnico;
 
-public class Loader extends Task implements Runnable{
+import java.util.concurrent.TimeUnit;
+
+public class Loader extends Task {
 
     public Loader(String name) {
         super(name);
     }
 
-    public void run() {
+    protected void doTask() {
+        try {
+            TimeUnit.MILLISECONDS.sleep(1);
+        } catch (InterruptedException e) {
+            this.setStop(true);
+        }   
+    }
 
-    } 
+    public void run() {
+        while (!this.stop) {
+            try {
+                doTask();
+            } catch (RuntimeException e) {
+                this.setStop(true);
+            }
+        }
+    }
     
 }
