@@ -5,17 +5,18 @@ import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
 
+import com.soporte_tecnico.exceptions.InvalidMarkingException;
+
 public class PetriNet {
     
     private static volatile PetriNet instance;
-    private final int nTransitions = 16;
     private final RealMatrix incidenceMatrix;
     private RealVector marking;
     private int enabledByTokens[];
 
 
     /**
-     * 
+     * Constructor. Privado para garantizar singleton.
      */
     private PetriNet() {
         incidenceMatrix = MatrixUtils.createRealMatrix(new double[][] {
@@ -48,9 +49,10 @@ public class PetriNet {
         enabledByTokens = new int[] {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     }
 
+
     /**
-     * 
-     * @return
+     * Devuelve una unica instancia de clase PetriNet. Si no existe instancia, crea una.
+     * @return puntero a la instancia de PetriNet.
      */
     public static PetriNet getInstance() {
         
@@ -59,7 +61,7 @@ public class PetriNet {
             return result;
         }
         
-        synchronized(TaskFactory.class) {
+        synchronized(PetriNet.class) {
             if (instance == null) {
                 instance = new PetriNet();
             }
@@ -67,35 +69,104 @@ public class PetriNet {
         }
     }
 
+
     /**
-     * 
-     * @param transition
-     * @return
+     * Devuelve el vector de marcado.
+     * @return vector de marcado.
+     */
+    public RealVector getMarking() {
+        return marking;
+    }
+
+
+    /**
+     * Devuelve el vector de transiciones habilitadas.
+     * @return vector de transiciones habilitadas.
+     */
+    public int[] getEnabledTransitions() {
+        return enabledByTokens;
+    }
+
+
+    /**
+     * Crea un vector de disparo a partir del numero de la transicion que se desea disparar.
+     * @param transition Numero de transicion que se desea disparar.
+     * @return RealVector que es el vector de disparo.
      */
     private RealVector createTransitionVector(int transition) {
-        double transitions[] = new double[nTransitions];
+        double transitions[] = new double[incidenceMatrix.getColumnDimension()];
         Arrays.fill(transitions, 0);
+        transitions[transition] = 1;
 
         return MatrixUtils.createRealVector(transitions);
     }
 
-    /**
-     * 
-     * @return
-     */
-    private boolean holdsMarkingInvariants() {
-        return false;
-    }
 
     /**
-     * 
-     * @return
+     * Verifica si se cumplen los invariantes de plaza de la red.
+     * @return true si cumple los invariantes o false si no los cumple.
      */
-    public boolean fire(int transition) {
+    private boolean holdsPlaceInvariants() {
+        if ((marking.getEntry(1) + marking.getEntry(2)) != 1) {
+            return false;
+        }
+        if ((marking.getEntry(4) + marking.getEntry(5)) != 1) {
+            return false;
+        }
+        if ((marking.getEntry(2) + marking.getEntry(3) + marking.getEntry(4) + marking.getEntry(19)) != 3) {
+            return false;
+        }
+        if ((marking.getEntry(7) + marking.getEntry(8) + marking.getEntry(12)) != 1) {
+            return false;
+        }
+        if ((marking.getEntry(10) + marking.getEntry(11) + marking.getEntry(13)) != 1) {
+            return false;
+        }
+        if ((marking.getEntry(8) + marking.getEntry(9) + marking.getEntry(10) + marking.getEntry(12) + marking.getEntry(13)) != 2) {
+            return false;
+        }
+        if ((marking.getEntry(15) + marking.getEntry(16) + marking.getEntry(17)) != 1) {
+            return false;
+        }
+        if ((marking.getEntry(19) + marking.getEntry(20)) != 1) {
+            return false;
+        }
+        return true;
+    }
+
+
+    /**
+     * Actualiza el vector de transiciones habilitadas por marcado.
+     */
+    private void updateEnabledTransitions() {
+        int places = incidenceMatrix.getRowDimension();
+        int transitions = incidenceMatrix.getColumnDimension();
+ 
+        for (int t = 1; t < transitions; t++) {
+            enabledByTokens[t] = 1;
+            for (int p = 0; p < places; p++) {
+                if ((incidenceMatrix.getEntry(p, t) == -1) && (marking.getEntry(p) < 1)) {
+                    enabledByTokens[t] = 0;
+                    break;
+                }
+            }
+        }
+    }
+
+
+    /**
+     * Dispara una transicion, si la misma esta habilitada.
+     * @param transition Numero de transicion que se desea disparar.
+     * @return true si la transicion fue disparada, en caso contrario false.
+     * @throws InvalidMarkingException
+     */
+    public boolean fire(int transition) throws InvalidMarkingException {
         if (enabledByTokens[transition] == 1) {
             marking = marking.add(incidenceMatrix.operate(createTransitionVector(transition)));
-            //TO DO: Actualizar array de transiciones sensibilizadas.
-            //TO DO: Verificar si se cumplen los invariantes de plaza. Crear un metodo que retorne true o false. Si es false, lanzar exepcion y terminar todo.
+            if (!holdsPlaceInvariants()) {
+                throw new InvalidMarkingException("Marcado Invalido. No se cumplen los invariantes de plaza.");
+            }
+            updateEnabledTransitions();
             return true;
         }
         else

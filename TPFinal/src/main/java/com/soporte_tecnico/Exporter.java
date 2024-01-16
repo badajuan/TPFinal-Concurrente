@@ -16,14 +16,6 @@ public class Exporter extends Task {
         }   
     }
 
-    public void run() {
-        while (!this.stop) {
-            try {
-                doTask();
-            } catch (RuntimeException e) {
-                this.setStop(true);
-            }
-        }
-    }
+
 
 }

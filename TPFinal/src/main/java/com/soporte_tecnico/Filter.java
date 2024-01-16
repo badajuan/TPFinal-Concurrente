@@ -15,14 +15,4 @@ public class Filter extends Task {
             this.setStop(true);
         }   
     }
-
-    public void run() {
-        while (!this.stop) {
-            try {
-                doTask();
-            } catch (RuntimeException e) {
-                this.setStop(true);
-            }
-        }
-    }
 }

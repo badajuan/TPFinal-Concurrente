@@ -18,7 +18,7 @@ public class TaskFactory {
 
 
     /**
-     * Constructor. Privado para asegurar singleton.
+     * Constructor. Privado para garantizar singleton.
      * @param maxLoaders Maxima cantidad de loaders permitidos.
      * @param maxFilters Maxima cantidad de filters permitidos.
      * @param maxResizers Maxima cantidad de resizers permitidos.
@@ -42,7 +42,7 @@ public class TaskFactory {
      * @param maxFilters Maxima cantidad de filters permitidos.
      * @param maxResizers Maxima cantidad de resizers permitidos.
      * @param maxExporters Maxima cantidad de exporters permitidos.
-     * @return
+     * @return puntero a la instancia de TaskFactory.
      */
     public static TaskFactory getInstance(Integer maxLoaders, Integer maxFilters, Integer maxResizers, Integer maxExporters) {
         
