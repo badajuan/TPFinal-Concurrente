@@ -89,6 +89,15 @@ public class PetriNet {
 
 
     /**
+     * Devuelve el numero de transiciones.
+     * @return Numero de transiciones.
+     */
+    public int getNtransitions() {
+        return this.incidenceMatrix.getColumnDimension();
+    }
+
+
+    /**
      * Crea un vector de disparo a partir del numero de la transicion que se desea disparar.
      * @param transition Numero de transicion que se desea disparar.
      * @return RealVector que es el vector de disparo.

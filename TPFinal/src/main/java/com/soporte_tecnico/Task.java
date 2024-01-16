@@ -15,6 +15,7 @@ public abstract class Task implements Runnable {
         this.stop = false;
     }
 
+    
     /**
      * Tarea realizada.
      */
