@@ -20,7 +20,7 @@ public class PetriNet {
      */
     private PetriNet() {
         incidenceMatrix = MatrixUtils.createRealMatrix(new double[][] {
-               //T0 T1 	T2 	T3 	T4 	T5 	T6 	T7 	T8 	T9 	T10 T11 T12 T13 T14 T15 T16
+               //T0 T1  T2  T3  T4  T5  T6  T7  T8  T9  T10 T11 T12 T13 T14 T15 T16
                 {1, -1, -1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0}, //P0 	
                 {0, -1,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0}, //P1 	
                 {0,  1,  0, -1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0}, //P2 	
