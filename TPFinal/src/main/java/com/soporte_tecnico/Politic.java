@@ -20,7 +20,6 @@ public class Politic {
         int min = Integer.MAX_VALUE;
         int selectedTransition = -1;
 
-
         for (int i = 0; i < nTransitions; i++) {
             if (enabledTransitions[i] == 1) {
                 int occurrences = counterList.get(i);
