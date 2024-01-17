@@ -47,6 +47,15 @@ public class Monitor {
         }
     }
 
+
+    /**
+     * Devuelve la red de petri del monitor. Para uso en testing.
+     * @return red de petri del monitor.
+     */
+    public PetriNet getPetriNet() {
+        return this.petriNet;
+    }
+
     
     /**
      * 
