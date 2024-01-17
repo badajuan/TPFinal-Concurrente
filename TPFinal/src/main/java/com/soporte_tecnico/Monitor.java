@@ -1,14 +1,19 @@
 package com.soporte_tecnico;
 
+import java.util.Arrays;
 import java.util.concurrent.Semaphore;
+import java.util.stream.IntStream;
 
 import com.soporte_tecnico.exceptions.InvalidMarkingException;
+import com.soporte_tecnico.exceptions.TransitionsMismatchException;
 
 public class Monitor {
     
     private static volatile Monitor instance;
     private final Semaphore mutex;
     private final PetriNet petriNet;
+    private final Queues transitionQueues;
+    private final Politic politic;
 
 
     /**
@@ -18,6 +23,8 @@ public class Monitor {
 
         this.mutex = new Semaphore(1);
         this.petriNet = petriNet;
+        this.transitionQueues = new Queues(this.petriNet.getNtransitions());
+        this.politic = new Politic(this.petriNet.getNtransitions());
     }
 
 
@@ -38,6 +45,32 @@ public class Monitor {
             }
             return instance;
         }
+    }
+
+
+    /**
+     * Devuelve la red de petri del monitor. Para uso en testing.
+     * @return red de petri del monitor.
+     */
+    public PetriNet getPetriNet() {
+        return this.petriNet;
+    }
+
+    
+    /**
+     * 
+     * @param enabledTransitions
+     * @param blockedList
+     * @return
+     * @throws TransitionsMismatchException
+     */
+    private int[] getEnabledBlockedTransitions(int[] enabledTransitions, int[] blockedList) throws TransitionsMismatchException {
+        if (enabledTransitions.length != blockedList.length) {
+            throw new TransitionsMismatchException("Numero de transiciones incorrecto. Transiciones habilitadas: " + enabledTransitions.length + 
+                                                   " - Colas de transiciones: " +blockedList.length);
+        }
+
+        return IntStream.range(0, enabledTransitions.length).map(i -> enabledTransitions[i] & blockedList[i]).toArray();
     }
 
 
@@ -64,13 +97,36 @@ public class Monitor {
 
             if (k) {
                 int[] enabledTransitions = petriNet.getEnabledTransitions();
-                //TO DO: toda esta parte...
+                int[] blockedList = transitionQueues.getBlockedList();
+                int[] enabledBlockedTransitions = new int[petriNet.getNtransitions()];
+
+                try {
+                    enabledBlockedTransitions = getEnabledBlockedTransitions(enabledTransitions, blockedList);
+                } catch (TransitionsMismatchException e) {
+                    System.err.println(e);
+                    System.exit(1);
+                }
+                
+                boolean allQueuesEmpty = Arrays.stream(enabledBlockedTransitions).allMatch(value -> value == 0);
+
+                if (!allQueuesEmpty) {
+                    int transitionToFire = politic.selectTransition(enabledBlockedTransitions);
+                    transitionQueues.release(transitionToFire);
+                    return;
+                }
+                else {
+                    k = false;
+                }
+
             }
             else {
                 mutex.release();
-                //TO DO: entrar a la cola de la transicion
+                transitionQueues.acquire(transition);
+                k = true;
             }
         }
+
+        mutex.release();
 
     }
 

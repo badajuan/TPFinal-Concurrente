@@ -17,8 +17,9 @@ public class PetriNet {
 
     /**
      * Constructor. Privado para garantizar singleton.
+     * @param p0 Marcado inicial de P0.
      */
-    private PetriNet() {
+    private PetriNet(int p0) {
         incidenceMatrix = MatrixUtils.createRealMatrix(new double[][] {
                //T0 T1  T2  T3  T4  T5  T6  T7  T8  T9  T10 T11 T12 T13 T14 T15 T16
                 {1, -1, -1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0}, //P0 	
@@ -44,17 +45,24 @@ public class PetriNet {
                 {0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, -1,  1}  //P20 
                 });
 
-        marking = MatrixUtils.createRealVector(new double[] {6, 1, 0, 3, 0, 1, 0, 1, 0, 2, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1});
+        marking = MatrixUtils.createRealVector(new double[] {0, 1, 0, 3, 0, 1, 0, 1, 0, 2, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1});
+        marking.setEntry(0, p0);
 
-        enabledByTokens = new int[] {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        enabledByTokens = new int[] {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+        if (marking.getEntry(0) > 0) {
+            enabledByTokens[1] = 1;
+            enabledByTokens[2] = 1;
+        }
     }
 
 
     /**
      * Devuelve una unica instancia de clase PetriNet. Si no existe instancia, crea una.
+     * @param p0 Marcado inicial de P0.
      * @return puntero a la instancia de PetriNet.
      */
-    public static PetriNet getInstance() {
+    public static PetriNet getInstance(int p0) {
         
         PetriNet result = instance;
         if (result != null) {
@@ -63,7 +71,7 @@ public class PetriNet {
         
         synchronized(PetriNet.class) {
             if (instance == null) {
-                instance = new PetriNet();
+                instance = new PetriNet(p0);
             }
             return instance;
         }
@@ -85,6 +93,15 @@ public class PetriNet {
      */
     public int[] getEnabledTransitions() {
         return enabledByTokens;
+    }
+
+
+    /**
+     * Devuelve el numero de transiciones.
+     * @return Numero de transiciones.
+     */
+    public int getNtransitions() {
+        return this.incidenceMatrix.getColumnDimension();
     }
 
 
