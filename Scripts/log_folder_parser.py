@@ -6,8 +6,9 @@ import sys
 def extract_number(transition):
     return int(re.search(r'\d+', transition).group())
 
-def parse_logs(folder_path):
+def count_transitions(folder_path):
     transitions_counter = Counter()
+    transition_pattern = re.compile(r'T\d+')
     files_read = 0
     total_transitions = 0
 
@@ -17,8 +18,8 @@ def parse_logs(folder_path):
         if os.path.isfile(file_path):
             files_read += 1
             with open(file_path, 'r', encoding='utf-8') as file:
-                lines = file.readlines()
-                transitions = re.findall(r"La transicion '(\w+)' ha sido disparada", ''.join(lines))
+                transitions_sequence = file.read()
+                transitions = transition_pattern.findall(transitions_sequence)
                 transitions_counter.update(transitions)
                 total_transitions += len(transitions)
 
@@ -32,8 +33,8 @@ def parse_logs(folder_path):
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print("Uso: log_folder_parser.py <path_folder_logs>")
+        print("Uso: log_folder_parser.py <path_carpeta_logs>")
         sys.exit(1)
 
     logs_folder_path = sys.argv[1]
-    parse_logs(logs_folder_path)
+    count_transitions(logs_folder_path)
