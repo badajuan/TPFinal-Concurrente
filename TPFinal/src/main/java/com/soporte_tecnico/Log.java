@@ -38,7 +38,7 @@ public class Log {
 
     public void logMessage(String message) {
         String line = String.format(" %d - %s\n",counter,message);
-        System.out.println(line);
+        //System.out.println(line);
         if (fileWriter != null) {
             fileWriter.println(line);
             fileWriter.flush();
