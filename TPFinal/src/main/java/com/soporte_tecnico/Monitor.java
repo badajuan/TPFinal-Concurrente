@@ -14,6 +14,7 @@ public class Monitor {
     private final PetriNet petriNet;
     private final Queues transitionQueues;
     private final Politic politic;
+    private final Log log;
 
 
     /**
@@ -25,6 +26,7 @@ public class Monitor {
         this.petriNet = petriNet;
         this.transitionQueues = new Queues(this.petriNet.getNtransitions());
         this.politic = new Politic(this.petriNet.getNtransitions());
+        this.log = Log.getInstance();
     }
 
 
@@ -126,9 +128,12 @@ public class Monitor {
             }
         }
 
+        if(k){
+            log.logTransition(transition);
+        }
+
         mutex.release();
 
     }
-
 
 }
