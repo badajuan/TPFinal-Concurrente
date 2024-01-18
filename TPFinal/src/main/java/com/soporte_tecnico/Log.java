@@ -13,7 +13,6 @@ public class Log {
     private PrintWriter fileWriter;
     private String fileName;
     private String timeStamp;
-    private int counter = 1;
 
     private Log() {
         try {
@@ -37,18 +36,15 @@ public class Log {
     }
 
     public void logMessage(String message) {
-        String line = String.format(" %d - %s\n",counter,message);
-        //System.out.println(line);
         if (fileWriter != null) {
-            fileWriter.println(line);
+            fileWriter.printf(message);
             fileWriter.flush();
         }
-        counter++;
     }
 
     public void logTransition(int transition){
-        String message = String.format("La transicion 'T%d' ha sido disparada exitosamente",transition);
-        this.logMessage(message);
+        //System.out.printf("La transicion 'T%d' ha sido disparada exitosamente\n",transition);
+        this.logMessage("T"+String.valueOf(transition));
     }
 
     public void closeLog() {
