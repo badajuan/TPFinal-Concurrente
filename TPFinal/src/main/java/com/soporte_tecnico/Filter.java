@@ -4,15 +4,20 @@ import java.util.concurrent.TimeUnit;
 
 public class Filter extends Task {
     
-    public Filter(String name) {
-        super(name);
+    public Filter(String name, int[] transitions, Monitor monitor) {
+        super(name, transitions, monitor);
     }
 
     protected void doTask() {
-        try {
-            TimeUnit.MILLISECONDS.sleep(1);
-        } catch (InterruptedException e) {
-            this.setStop(true);
-        }   
+        int index = 0;
+        while (!stop) {
+            try {
+                this.monitor.fireTransition(transitions[index]);
+                index = (index + 1) % transitions.length;
+                TimeUnit.MILLISECONDS.sleep(3);
+            } catch (InterruptedException e) {
+                this.setStop(true);
+            }   
+        }
     }
 }

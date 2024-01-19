@@ -1,5 +1,7 @@
 package com.soporte_tecnico;
 
+import java.util.HashMap;
+import java.util.Map;
 
 public class TaskFactory {
     
@@ -15,6 +17,8 @@ public class TaskFactory {
     private int maxFilters;
     private int maxResizers;
     private int maxExporters;
+
+    private Map<Task, Thread> tasks;
 
 
     /**
@@ -34,7 +38,11 @@ public class TaskFactory {
         this.filtersCounter = 0;
         this.resizersCounter = 0;
         this.exportersCounter = 0;
-    }
+
+        this.tasks = new HashMap<Task,Thread>();
+     
+        };
+
 
     /**
      * Devuelve una unica instancia de clase TaskFactory. Si no existe instancia, crea una.
@@ -59,30 +67,42 @@ public class TaskFactory {
         }
     }
 
+
+    /**
+     * Devuelve el mapa de tareas con sus respectivos hilos.
+     * @return tasks, mapa de <Task, Thread>
+     */
+    public Map<Task, Thread> getTasks() {
+        return this.tasks;
+    }
+
+
     /**
      * Crea un hilo que ejecuta una tarea. Verifica que no se puedan crear mas tareas de las especificadas en el constructor.
      * @param taskType String con el tipo de tarea.
      * @return Hilo que ejecuta la tarea solicitada al factory.
      */
-    public Thread newTask(String taskType) {
+    public Thread newTask(String taskType, int[] transitions, Monitor monitor) {
 
-        Thread t;
+        Task task;
         if (taskType.equals("Loader") && this.loadersCounter < this.maxLoaders) {
-            t = new Thread(new Loader(taskType + " " + ++this.loadersCounter));
+            task = new Loader(taskType + " " + ++this.loadersCounter, transitions, monitor);
         }
         else if (taskType.equals("Filter") && this.filtersCounter < this.maxFilters) {
-            t = new Thread(new Filter(taskType + " " + ++this.filtersCounter));
+            task = new Filter(taskType + " " + ++this.filtersCounter, transitions, monitor);
         }
         else if (taskType.equals("Resizer") && this.resizersCounter < this.maxResizers) {
-            t = new Thread(new Resizer(taskType + " " + ++this.resizersCounter));
+            task = new Resizer(taskType + " " + ++this.resizersCounter, transitions, monitor);
         }
         else if (taskType.equals("Exporter") && this.exportersCounter < this.maxExporters) {
-            t = new Thread(new Exporter(taskType + " " + ++this.exportersCounter));
+            task = new Exporter(taskType + " " + ++this.exportersCounter, transitions, monitor);
         }
         else {
-            t = null;
+            return null;
         }
 
+        Thread t = new Thread(task);
+        tasks.put(task, t);
         return t;
     }
 }
