@@ -1,7 +1,9 @@
 TPFinal/target
 TPFinal/.idea
 TPFinal/.vscode
+TPFinal/logs
 .vscode
 .idea
 target
 *.class*
+*logs*
