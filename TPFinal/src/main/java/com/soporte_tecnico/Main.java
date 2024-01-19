@@ -7,7 +7,6 @@ import java.util.concurrent.TimeUnit;
 
 public class Main {
     public static void main(String[] args) {
-
         PetriNet petriNet = PetriNet.getInstance(200);
         Monitor monitor = Monitor.getInstance(petriNet);
         TaskFactory taskFactory = TaskFactory.getInstance(2, 2, 2, 1);
