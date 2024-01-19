@@ -4,16 +4,21 @@ import java.util.concurrent.TimeUnit;
 
 public class Exporter extends Task {
 
-    public Exporter(String name) {
-        super(name);
+    public Exporter(String name, int[] transitions, Monitor monitor) {
+        super(name, transitions, monitor);
     }
 
     protected void doTask() {
-        try {
-            TimeUnit.MILLISECONDS.sleep(1);
-        } catch (InterruptedException e) {
-            this.setStop(true);
-        }   
+        int index = 0;
+        while (!stop) {
+            try {
+                this.monitor.fireTransition(transitions[index]);
+                index = (index + 1) % transitions.length;
+                TimeUnit.MILLISECONDS.sleep(5);
+            } catch (InterruptedException e) {
+                this.setStop(true);
+            }   
+        }
     }
 
 

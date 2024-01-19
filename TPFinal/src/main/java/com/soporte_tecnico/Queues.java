@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.Semaphore;
 
+import com.soporte_tecnico.exceptions.TaskInterruptedException;
+
 
 public class Queues {
     private ArrayList<Semaphore> queues;
@@ -42,13 +44,14 @@ public class Queues {
      * @param transition
      */
     public void acquire(int transition) {
+        synchronized (this) {
+            this.blockedList[transition] = 1;
+        }
         try {
             queues.get(transition).acquire();
         } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            throw new TaskInterruptedException("Tarea interrumpida");
         }
-
-        this.blockedList[transition] = 1;
     }
 
 
@@ -59,8 +62,15 @@ public class Queues {
     public void release(int transition) {
         queues.get(transition).release();
 
-        if (!queues.get(transition).hasQueuedThreads()) {
+        synchronized (this) {
             blockedList[transition] = 0;
+        }
+    }
+
+
+    public void releaseAll() {
+        for (Semaphore queue : queues) {
+            queue.release();
         }
     }
 }
