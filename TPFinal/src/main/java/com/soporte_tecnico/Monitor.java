@@ -1,16 +1,21 @@
 package com.soporte_tecnico;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.stream.IntStream;
 
 import com.soporte_tecnico.exceptions.InvalidMarkingException;
+import com.soporte_tecnico.exceptions.TaskInterruptedException;
 import com.soporte_tecnico.exceptions.TransitionsMismatchException;
 
 public class Monitor {
     
     private static volatile Monitor instance;
     private final Semaphore mutex;
+    private List<Integer> counterList;
     private final PetriNet petriNet;
     private final Queues transitionQueues;
     private final Politic politic;
@@ -21,11 +26,11 @@ public class Monitor {
      * Constructor. Privado para garantizar singleton.
      */
     private Monitor(PetriNet petriNet) {
-
         this.mutex = new Semaphore(1);
         this.petriNet = petriNet;
         this.transitionQueues = new Queues(this.petriNet.getNtransitions());
         this.politic = new Politic(this.petriNet.getNtransitions());
+        this.counterList = new ArrayList<>(Collections.nCopies(this.petriNet.getNtransitions(), 0));
         this.log = Log.getInstance();
     }
 
@@ -76,6 +81,11 @@ public class Monitor {
     }
 
 
+    public void endExecution() {
+        transitionQueues.releaseAll();
+    }
+
+
     /**
      * 
      * @param transition
@@ -98,6 +108,8 @@ public class Monitor {
             }
 
             if (k) {
+                counterList.set(transition, counterList.get(transition) + 1);
+                log.logTransition(transition);
                 int[] enabledTransitions = petriNet.getEnabledTransitions();
                 int[] blockedList = transitionQueues.getBlockedList();
                 int[] enabledBlockedTransitions = new int[petriNet.getNtransitions()];
@@ -108,11 +120,11 @@ public class Monitor {
                     System.err.println(e);
                     System.exit(1);
                 }
-                
+
                 boolean allQueuesEmpty = Arrays.stream(enabledBlockedTransitions).allMatch(value -> value == 0);
 
                 if (!allQueuesEmpty) {
-                    int transitionToFire = politic.selectTransition(enabledBlockedTransitions);
+                    int transitionToFire = politic.selectTransition(enabledBlockedTransitions, this.counterList);
                     transitionQueues.release(transitionToFire);
                     return;
                 }
@@ -123,17 +135,16 @@ public class Monitor {
             }
             else {
                 mutex.release();
-                transitionQueues.acquire(transition);
+                try {
+                    transitionQueues.acquire(transition);
+                } catch (TaskInterruptedException e) {
+                    k = false;
+                    return;
+                }
+                
                 k = true;
             }
         }
-
-        if(k){
-            log.logTransition(transition);
-        }
-
         mutex.release();
-
     }
-
 }

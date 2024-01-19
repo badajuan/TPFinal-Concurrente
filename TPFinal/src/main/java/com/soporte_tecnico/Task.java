@@ -4,15 +4,18 @@ public abstract class Task implements Runnable {
     
     private String name;
     protected boolean stop;
-
+    protected final int[] transitions;
+    protected final Monitor monitor;
     
     /**
      * Constructor.
      * @param name Tipo de tarea a crear.
      */
-    public Task(String name) {
+    public Task(String name, int[] transitions, Monitor monitor) {
         this.name = name;
         this.stop = false;
+        this.transitions = transitions;
+        this.monitor = monitor;
     }
 
     
@@ -42,12 +45,6 @@ public abstract class Task implements Runnable {
 
     @Override
     public void run() {
-        while (!this.stop) {
-            try {
-                doTask();
-            } catch (RuntimeException e) {
-                this.setStop(true);
-            }
-        }
+        doTask();
     }
 }
