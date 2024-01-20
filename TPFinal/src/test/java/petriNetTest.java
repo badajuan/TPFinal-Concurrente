@@ -36,17 +36,28 @@ public class petriNetTest {
     public void fireTest2(){
         
         PetriNet petriNet = PetriNet.getInstance(0);
+        boolean result = false;
 
-        petriNet.fire(0);
-
-        boolean result = petriNet.fire(1);
+        result = petriNet.fire(0);
         assertTrue(result);
 
-        result = petriNet.fire(3);
+        for (int i = 1; i < 10; i = i+2) {
+            System.out.println(i);
+            result = petriNet.fire(i);
+            assertTrue(result);
+        }
+
+        for (int i = 11; i < 16; i = i+2) {
+            System.out.println(i);
+            result = petriNet.fire(i);
+            assertTrue(result);
+        }        
+
+        result = petriNet.fire(16);
         assertTrue(result);
 
         RealVector marking = petriNet.getMarking();
-        RealVector testMarking = MatrixUtils.createRealVector(new double[] {0, 1, 0, 3, 0, 1, 1, 1, 0, 2, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1});
+        RealVector testMarking = MatrixUtils.createRealVector(new double[] {0, 1, 0, 3, 0, 1, 0, 1, 0, 2, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1});
         int n = marking.getDimension();
 
         for (int i = 0; i < n; i++) {
