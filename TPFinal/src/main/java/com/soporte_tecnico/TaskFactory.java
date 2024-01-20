@@ -5,35 +5,39 @@ import java.util.Map;
 
 public class TaskFactory {
     
-    // Ver en https://refactoring.guru/design-patterns/singleton/java/example#example-2 porque es volatile
     private static volatile TaskFactory instance;
     
-    private int loadersCounter;
-    private int filtersCounter;
-    private int resizersCounter;
-    private int exportersCounter;
+    private int importersCounter;        // Cuenta de hilos importers
+    private int loadersCounter;          // Cuenta de hilos loaders
+    private int filtersCounter;          // Cuenta de hilos filters
+    private int resizersCounter;         // Cuenta de hilos resizers
+    private int exportersCounter;        // Cuenta de hilos exporters
     
-    private int maxLoaders;
-    private int maxFilters;
-    private int maxResizers;
-    private int maxExporters;
+    private int maxImporters;            // Maxima cantidad de importers
+    private int maxLoaders;              // Maxima cantidad de loaders
+    private int maxFilters;              // Maxima cantidad de filters
+    private int maxResizers;             // Maxima cantidad de resizers
+    private int maxExporters;            // Maxima cantidad de exporters
 
-    private Map<Task, Thread> tasks;
+    private Map<Task, Thread> tasks;     // Contenedor de tareas y sus hilos
 
 
     /**
      * Constructor. Privado para garantizar singleton.
+     * @param maxImporters Maxima cantidad de importers permitidos.
      * @param maxLoaders Maxima cantidad de loaders permitidos.
      * @param maxFilters Maxima cantidad de filters permitidos.
      * @param maxResizers Maxima cantidad de resizers permitidos.
      * @param maxExporters Maxima cantidad de exporters permitidos.
      */
-    private TaskFactory(int maxLoaders, int maxFilters, int maxResizers, int maxExporters) {
+    private TaskFactory(int maxImporters, int maxLoaders, int maxFilters, int maxResizers, int maxExporters) {
+        this.maxImporters = maxImporters;
         this.maxLoaders = maxLoaders;
         this.maxFilters = maxFilters;
         this.maxResizers = maxResizers;
         this.maxExporters = maxExporters;
 
+        this.importersCounter = 0;
         this.loadersCounter = 0;
         this.filtersCounter = 0;
         this.resizersCounter = 0;
@@ -46,13 +50,14 @@ public class TaskFactory {
 
     /**
      * Devuelve una unica instancia de clase TaskFactory. Si no existe instancia, crea una.
+     * @param maxImporters Maxima cantidad de importers permitidos.
      * @param maxLoaders Maxima cantidad de loaders permitidos.
      * @param maxFilters Maxima cantidad de filters permitidos.
      * @param maxResizers Maxima cantidad de resizers permitidos.
      * @param maxExporters Maxima cantidad de exporters permitidos.
      * @return puntero a la instancia de TaskFactory.
      */
-    public static TaskFactory getInstance(Integer maxLoaders, Integer maxFilters, Integer maxResizers, Integer maxExporters) {
+    public static TaskFactory getInstance(int maxImporters, int maxLoaders, int maxFilters, int maxResizers, int maxExporters) {
         
         TaskFactory result = instance;
         if (result != null) {
@@ -61,7 +66,7 @@ public class TaskFactory {
 
         synchronized(TaskFactory.class) {
             if (instance == null) {
-                instance = new TaskFactory(maxLoaders, maxFilters, maxResizers, maxExporters);
+                instance = new TaskFactory(maxImporters, maxLoaders, maxFilters, maxResizers, maxExporters);
             }
             return instance;
         }
@@ -85,7 +90,10 @@ public class TaskFactory {
     public Thread newTask(String taskType, int[] transitions, Monitor monitor) {
 
         Task task;
-        if (taskType.equals("Loader") && this.loadersCounter < this.maxLoaders) {
+        if (taskType.equals("Importer") && this.importersCounter < this.maxImporters) {
+            task = new Importer(taskType + " " + ++this.importersCounter, transitions, monitor);
+        }        
+        else if (taskType.equals("Loader") && this.loadersCounter < this.maxLoaders) {
             task = new Loader(taskType + " " + ++this.loadersCounter, transitions, monitor);
         }
         else if (taskType.equals("Filter") && this.filtersCounter < this.maxFilters) {

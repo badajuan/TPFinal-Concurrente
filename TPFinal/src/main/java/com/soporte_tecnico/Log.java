@@ -9,11 +9,15 @@ import java.util.Date;
 
 public class Log {
 
-    private static Log instance;
-    private PrintWriter fileWriter;
-    private String fileName;
-    private String timeStamp;
+    private static Log instance;          // Puntero a la instancia Log
+    private PrintWriter fileWriter;       // Writer del log
+    private String fileName;              // Nombre del archivo log
+    private String timeStamp;             // timestamp del nombre del log
 
+
+    /**
+     * Constructor. Privado para garantizar singleton.
+     */
     private Log() {
         try {
             Paths.get("logs").toFile().mkdirs();
@@ -28,6 +32,11 @@ public class Log {
         System.out.printf("Log creado bajo el nombre '%s'\n",fileName);
     }
 
+
+    /**
+     * Devuelve una unica instancia de clase Log. Si no existe instancia, crea una.
+     * @return puntero a la instancia de Log.
+     */
     public static Log getInstance() {
         if (instance == null) {
             instance = new Log();
@@ -35,6 +44,11 @@ public class Log {
         return instance;
     }
 
+
+    /**
+     * Registra un mensaje en el log.
+     * @param message string a registrar en el log.
+     */
     public void logMessage(String message) {
         if (fileWriter != null) {
             fileWriter.printf(message);
@@ -42,11 +56,20 @@ public class Log {
         }
     }
 
+
+    /**
+     * Registra el disparo de una transicion en el log.
+     * @param transition disparo a registrar.
+     */
     public void logTransition(int transition){
         //System.out.printf("La transicion 'T%d' ha sido disparada exitosamente\n",transition);
         this.logMessage("T"+String.valueOf(transition));
     }
 
+
+    /**
+     * Cierra el archivo de log.
+     */
     public void closeLog() {
         if (fileWriter != null) {
             fileWriter.close();
