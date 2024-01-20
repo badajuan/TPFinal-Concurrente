@@ -13,21 +13,22 @@ import com.soporte_tecnico.exceptions.TransitionsMismatchException;
 
 public class Monitor {
     
-    private static volatile Monitor instance;
-    private final Semaphore mutex;
-    private List<Integer> counterList;
-    private final PetriNet petriNet;
-    private final Queues transitionQueues;
-    private final Politic politic;
-    private final Log log;
+    private static volatile Monitor instance;          // Puntero a la instancia monitor
+    private final Semaphore mutex;                     // Mutex de exclusion mutua del monitor
+    private List<Integer> counterList;                 // Lista con conteo de disparos por transicion
+    private final PetriNet petriNet;                   // Red de petri del monitor
+    private final Queues transitionQueues;             // Colas de condicion
+    private final Politic politic;                     // Politica del monitor
+    private final Log log;                             // Log de disparos
 
 
     /**
      * Constructor. Privado para garantizar singleton.
+     * @param p0 Cantidad inicial de tokens en la plaza p0 de la red de petri.
      */
-    private Monitor(PetriNet petriNet) {
+    private Monitor(int p0) {
         this.mutex = new Semaphore(1);
-        this.petriNet = petriNet;
+        this.petriNet = PetriNet.getInstance(p0);
         this.transitionQueues = new Queues(this.petriNet.getNtransitions());
         this.politic = new Politic(this.petriNet.getNtransitions());
         this.counterList = new ArrayList<>(Collections.nCopies(this.petriNet.getNtransitions(), 0));
@@ -37,9 +38,10 @@ public class Monitor {
 
     /**
      * Devuelve una unica instancia de clase Monitor. Si no existe instancia, crea una.
+     * @param p0 Cantidad inicial de tokens en la plaza p0 de la red de petri.
      * @return puntero a la instancia de Monitor.
      */
-    public static Monitor getInstance(PetriNet petriNet) {
+    public static Monitor getInstance(int p0) {
         
         Monitor result = instance;
         if (result != null) {
@@ -48,7 +50,7 @@ public class Monitor {
         
         synchronized(Monitor.class) {
             if (instance == null) {
-                instance = new Monitor(petriNet);
+                instance = new Monitor(p0);
             }
             return instance;
         }
@@ -56,19 +58,29 @@ public class Monitor {
 
 
     /**
-     * Devuelve la red de petri del monitor. Para uso en testing.
+     * Devuelve la red de petri del monitor.
      * @return red de petri del monitor.
      */
     public PetriNet getPetriNet() {
         return this.petriNet;
     }
 
+
+    /**
+     * Devuelve la lista con la cuenta de disparos realizados por transicion.
+     * @return lista de disparos.
+     */
+    public List<Integer> getCounterList() {
+        return this.counterList;
+    }
+
     
     /**
-     * 
-     * @param enabledTransitions
-     * @param blockedList
-     * @return
+     * Calcula que transicione estan habilitadas y bloqueadas al mismo tiempo y devuelve un array donde un 1 representa una 
+     * transicion bloqueada y habilitada.
+     * @param enabledTransitions array de transiciones bloqueadas.
+     * @param blockedList array de transiciones habilitadas.
+     * @return array de transiciones bloqueadas y habilitadas.
      * @throws TransitionsMismatchException
      */
     private int[] getEnabledBlockedTransitions(int[] enabledTransitions, int[] blockedList) throws TransitionsMismatchException {
@@ -81,14 +93,10 @@ public class Monitor {
     }
 
 
-    public void endExecution() {
-        transitionQueues.releaseAll();
-    }
-
-
     /**
-     * 
-     * @param transition
+     * Toma la desicion sobre que transicion disparar y que hilo debe realizar su tarea.
+     * Implementa una politica Signal and Continue. 
+     * @param transition transicion que un hilo solicita disparar.
      */
     public void fireTransition(int transition) {
         try {
@@ -106,7 +114,7 @@ public class Monitor {
                System.err.println(e);
                System.exit(1);
             }
-
+            
             if (k) {
                 counterList.set(transition, counterList.get(transition) + 1);
                 log.logTransition(transition);

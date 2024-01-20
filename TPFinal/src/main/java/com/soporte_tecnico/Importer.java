@@ -2,7 +2,7 @@ package com.soporte_tecnico;
 
 import java.util.concurrent.TimeUnit;
 
-public class Filter extends Task {
+public class Importer extends Task{
 
     /**
      * Constructor.
@@ -10,7 +10,7 @@ public class Filter extends Task {
      * @param transitions transiciones disparadas por la tarea.
      * @param monitor monitor de la ejecucion.
      */
-    public Filter(String name, int[] transitions, Monitor monitor) {
+    public Importer(String name, int[] transitions, Monitor monitor) {
         super(name, transitions, monitor);
     }
 
@@ -24,7 +24,7 @@ public class Filter extends Task {
             try {
                 this.monitor.fireTransition(transitions[index]);
                 index = (index + 1) % transitions.length;
-                TimeUnit.MILLISECONDS.sleep(3);
+                TimeUnit.MILLISECONDS.sleep(1);
             } catch (InterruptedException e) {
                 this.setStop(true);
             }   

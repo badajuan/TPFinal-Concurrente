@@ -6,7 +6,6 @@ import org.apache.commons.math3.util.Precision;
 import org.junit.Test;
 
 import com.soporte_tecnico.Monitor;
-import com.soporte_tecnico.PetriNet;
 
 public class MonitorTest {
     
@@ -17,8 +16,10 @@ public class MonitorTest {
     @Test
     public void fireTransitionTest1() {
 
-        PetriNet petriNet = PetriNet.getInstance(2);
-        Monitor monitor = Monitor.getInstance(petriNet);
+        Monitor monitor = Monitor.getInstance(0);
+
+        monitor.fireTransition(0);
+        monitor.fireTransition(0);
 
         for (int i = 1; i < 11; i++) {
             monitor.fireTransition(i);
