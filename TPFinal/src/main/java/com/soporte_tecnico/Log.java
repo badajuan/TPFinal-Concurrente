@@ -11,10 +11,10 @@ public class Log {
 
     private static Log instance;
     private PrintWriter fileWriter;
-    private String fileName;
-    private String timeStamp;
 
     private Log() {
+        String fileName;
+        String timeStamp;
         try {
             Paths.get("logs").toFile().mkdirs();
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
