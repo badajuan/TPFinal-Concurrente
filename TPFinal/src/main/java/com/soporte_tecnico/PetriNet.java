@@ -9,10 +9,10 @@ import com.soporte_tecnico.exceptions.InvalidMarkingException;
 
 public class PetriNet {
     
-    private static volatile PetriNet instance;
-    private final RealMatrix incidenceMatrix;
-    private RealVector marking;
-    private int enabledByTokens[];
+    private static volatile PetriNet instance;          // Puntero a la instancia PetriNet
+    private final RealMatrix incidenceMatrix;           // Matriz de incidencia de la red de petri 
+    private RealVector marking;                         // Vector de marcado de la red
+    private int enabledByTokens[];                      // Vector de transiciones habilitadas por tokens
 
 
     /**
