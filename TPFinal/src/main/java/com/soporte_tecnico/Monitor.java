@@ -170,11 +170,7 @@ public class Monitor {
                 } catch (TransitionsMismatchException e) {
                     System.err.println(e);
                     System.exit(1);
-                }
-
-                //System.out.println("enabled: " + Arrays.toString(enabledTransitions));
-                //System.out.println("blocked: " + Arrays.toString(blockedList));
-                //System.out.println("         " + Arrays.toString(enabledBlockedTransitions));                
+                }               
 
                 boolean allQueuesEmpty = Arrays.stream(enabledBlockedTransitions).allMatch(value -> value == 0);
 
