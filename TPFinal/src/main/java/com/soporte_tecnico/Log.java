@@ -19,6 +19,8 @@ public class Log {
      * Constructor. Privado para garantizar singleton.
      */
     private Log() {
+        String fileName;
+        String timeStamp;
         try {
             Paths.get("logs").toFile().mkdirs();
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
