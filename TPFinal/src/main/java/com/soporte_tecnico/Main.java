@@ -12,7 +12,8 @@ public class Main {
         final int initialImages = 6;
         final Integer nThreads = 8;
         final Integer maxTinvatiants = 200;
-        final Monitor monitor = Monitor.getInstance(initialImages);
+        //final Monitor monitor = Monitor.getInstance(initialImages);
+        final Monitor monitor = Monitor.getInstance(initialImages, "Priority", "E", 0.8);
         final TaskFactory taskFactory = TaskFactory.getInstance(1,
                                                                 2, 
                                                                 2, 

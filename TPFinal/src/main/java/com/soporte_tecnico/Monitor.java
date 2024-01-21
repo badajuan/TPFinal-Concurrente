@@ -15,7 +15,7 @@ public class Monitor {
     
     private static volatile Monitor instance;          // Puntero a la instancia monitor
     private final Semaphore mutex;                     // Mutex de exclusion mutua del monitor
-    private List<Integer> counterList;                 // Lista con conteo de disparos por transicion
+    private List<Double> counterList;                 // Lista con conteo de disparos por transicion
     private final PetriNet petriNet;                   // Red de petri del monitor
     private final Queues transitionQueues;             // Colas de condicion
     private final Politic politic;                     // Politica del monitor
@@ -31,8 +31,27 @@ public class Monitor {
         this.petriNet = PetriNet.getInstance(p0);
         this.transitionQueues = new Queues(this.petriNet.getNtransitions());
         this.politic = new Politic(this.petriNet.getNtransitions());
-        this.counterList = new ArrayList<>(Collections.nCopies(this.petriNet.getNtransitions(), 0));
+        this.counterList = new ArrayList<>(Collections.nCopies(this.petriNet.getNtransitions(), 0.0));
         this.log = Log.getInstance();
+    }
+
+
+    /**
+     * Constructor. Privado para garantizar singleton. Implementa politica donde 
+     * se da prioridad a un segmento sobre otro.
+     * @param p0
+     * @param mode modo balanceado o prioridad de segmento.
+     * @param segment segmendo a priorizar.
+     * @param laod carga del segmento a priorizar.
+     */
+    private Monitor(int p0, String mode, String segment, double load) {
+        this.mutex = new Semaphore(1);
+        this.petriNet = PetriNet.getInstance(p0);
+        this.transitionQueues = new Queues(this.petriNet.getNtransitions());
+        this.counterList = new ArrayList<>(Collections.nCopies(this.petriNet.getNtransitions(), 0.0));
+        this.log = Log.getInstance();
+        this.politic = new Politic(this.petriNet.getNtransitions(), mode, segment, load);
+
     }
 
 
@@ -58,6 +77,30 @@ public class Monitor {
 
 
     /**
+     * Devuelve una unica instancia de clase Monitor. Si no existe instancia, crea una.
+     * @param p0 Cantidad inicial de tokens en la plaza p0 de la red de petri.
+     * @param mode modo balanceado o prioridad de segmento.
+     * @param segment segmendo a priorizar.
+     * @param laod carga del segmento a priorizar.
+     * @return puntero a la instancia de Monitor.
+     */
+    public static Monitor getInstance(int p0, String mode, String segment, double load) {
+        
+        Monitor result = instance;
+        if (result != null) {
+            return result;
+        }
+        
+        synchronized(Monitor.class) {
+            if (instance == null) {
+                instance = new Monitor(p0, mode, segment, load);
+            }
+            return instance;
+        }
+    }
+
+
+    /**
      * Devuelve la red de petri del monitor.
      * @return red de petri del monitor.
      */
@@ -70,7 +113,7 @@ public class Monitor {
      * Devuelve la lista con la cuenta de disparos realizados por transicion.
      * @return lista de disparos.
      */
-    public List<Integer> getCounterList() {
+    public List<Double> getCounterList() {
         return this.counterList;
     }
 
@@ -116,7 +159,7 @@ public class Monitor {
             }
             
             if (k) {
-                counterList.set(transition, counterList.get(transition) + 1);
+                counterList.set(transition, counterList.get(transition) + 1.0);
                 log.logTransition(transition);
                 int[] enabledTransitions = petriNet.getEnabledTransitions();
                 int[] blockedList = transitionQueues.getBlockedList();
@@ -129,10 +172,18 @@ public class Monitor {
                     System.exit(1);
                 }
 
+                //System.out.println("enabled: " + Arrays.toString(enabledTransitions));
+                //System.out.println("blocked: " + Arrays.toString(blockedList));
+                //System.out.println("         " + Arrays.toString(enabledBlockedTransitions));                
+
                 boolean allQueuesEmpty = Arrays.stream(enabledBlockedTransitions).allMatch(value -> value == 0);
 
                 if (!allQueuesEmpty) {
                     int transitionToFire = politic.selectTransition(enabledBlockedTransitions, this.counterList);
+                    if (transitionToFire == -1) {
+                        mutex.release();
+                        return;
+                    }
                     transitionQueues.release(transitionToFire);
                     return;
                 }
