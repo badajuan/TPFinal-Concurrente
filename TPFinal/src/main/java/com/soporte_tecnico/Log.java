@@ -11,8 +11,6 @@ public class Log {
 
     private static Log instance;          // Puntero a la instancia Log
     private PrintWriter fileWriter;       // Writer del log
-    private String fileName;              // Nombre del archivo log
-    private String timeStamp;             // timestamp del nombre del log
 
 
     /**
@@ -26,12 +24,11 @@ public class Log {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
             timeStamp = dateFormat.format(new Date());
             fileName = String.format("logs/log_%s.txt", timeStamp);
-
             fileWriter = new PrintWriter(new FileWriter(fileName, false));
+            System.out.printf("Log creado bajo el nombre '%s'\n",fileName);
         } catch (IOException e) {
             e.printStackTrace();
-        }
-        System.out.printf("Log creado bajo el nombre '%s'\n",fileName);
+        } 
     }
 
 
