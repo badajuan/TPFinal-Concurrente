@@ -57,7 +57,7 @@ public class Politic {
         this.mode = mode;
         this.lowPriorityT = priorityPairs.get(this.highPriorityT);
 
-        if (!(mode == "Balance" || mode == "Priority")) {
+        if (!("Balance".equals(mode) || "Priority".equals(mode))) {
             throw new RuntimeException("Modo de politica incorrecto. mode: " + mode);
         }
         if (this.highPriorityT == null) {
