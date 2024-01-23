@@ -8,7 +8,7 @@ public class Resizer extends Task {
      * Constructor.
      * @param name tarea a realizar.
      * @param transitions transiciones disparadas por la tarea.
-     * @param monitor monitor de la ejecucion.
+     * @param monitor monitor de la ejecución.
      */
     public Resizer(String name, int[] transitions, Monitor monitor) {
         super(name, transitions, monitor);

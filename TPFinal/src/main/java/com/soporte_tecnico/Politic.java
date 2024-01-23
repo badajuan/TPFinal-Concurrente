@@ -82,7 +82,7 @@ public class Politic {
                 double occurrences = counterList.get(i);
 
                 if (occurrences < min) {
-                    if (mode == "Priority" && lowPriorityT == i) {
+                    if ("Priority".equals(mode) && lowPriorityT == i) {
                         double balance = (counterList.get(highPriorityT) - counterList.get(lowPriorityT)) / counterList.get(highPriorityT);
                         if (balance < this.load) {
                             continue;

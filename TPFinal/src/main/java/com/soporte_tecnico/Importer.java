@@ -24,7 +24,7 @@ public class Importer extends Task{
             try {
                 this.monitor.fireTransition(transitions[index]);
                 index = (index + 1) % transitions.length;
-                TimeUnit.MILLISECONDS.sleep(1);
+                TimeUnit.MILLISECONDS.sleep(100000);
             } catch (InterruptedException e) {
                 this.setStop(true);
             }   

@@ -12,7 +12,7 @@ public abstract class Task implements Runnable {
      * Constructor.
      * @param name tarea a realizar.
      * @param transitions transiciones disparadas por la tarea.
-     * @param monitor monitor de la ejecucion.
+     * @param monitor monitor de la ejecución.
      */
     public Task(String name, int[] transitions, Monitor monitor) {
         this.name = name;
@@ -30,7 +30,7 @@ public abstract class Task implements Runnable {
 
     /**
      * Detiene la ejecucion de la tarea.
-     * @param s true si se quiere detener la ejecucion.
+     * @param s true si se quiere detener la ejecución.
      */
     protected void setStop(boolean s) {
         this.stop = s;

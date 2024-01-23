@@ -1,18 +1,27 @@
 package com.soporte_tecnico;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
+import org.apache.commons.math3.util.Pair;
 
 import com.soporte_tecnico.exceptions.InvalidMarkingException;
 
 public class PetriNet {
     
-    private static volatile PetriNet instance;          // Puntero a la instancia PetriNet
-    private final RealMatrix incidenceMatrix;           // Matriz de incidencia de la red de petri 
-    private RealVector marking;                         // Vector de marcado de la red
-    private int enabledByTokens[];                      // Vector de transiciones habilitadas por tokens
+    private static volatile PetriNet instance;                               // Puntero a la instancia PetriNet.
+    private final RealMatrix incidenceMatrix;                                // Matriz de incidencia de la red de petri .
+    private RealVector marking;                                              // Vector de marcado de la red.
+    private int[] enabledByTokens;                                           // Vector de transiciones habilitadas por tokens.
+
+    private long[] transitionsTimeStamps;                                    // Marca de tiempo de cuando una transición fue habilitada por tokens.
+    private final ArrayList<Pair<Long, Long>> alphaBeta;                     // Par alfa-beta de tiempos de intervalo de cada transicion.
+
+    public enum Status {ENABLED, NO_TOKENS, BEFORE_WINDOW, AFTER_WINDOW}     // Flags de status que indican si una transición se puede disparar o porque no.
+
+    private Status[] transitionsStatus;                                      // Vector de status para cada transición.
 
 
     /**
@@ -45,15 +54,28 @@ public class PetriNet {
                 {0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, -1,  1}  //P20 
                 });
 
+
+        alphaBeta = new ArrayList<>(Arrays.asList(new Pair<>(0L,0L), new Pair<>(0L,0L), new Pair<>(0L,0L),       // T0, T1, T2
+                                                  new Pair<>(250L,10L), new Pair<>(5L,10L), new Pair<>(0L, 0L),    // T3, T4, T5
+                                                  new Pair<>(0L,0L), new Pair<>(5L,10L), new Pair<>(5L,10L),     // T6, T7, T8
+                                                  new Pair<>(5L,10L), new Pair<>(5L,10L), new Pair<>(0L,0L),     // T9, T10, T11
+                                                  new Pair<>(0L,0L), new Pair<>(5L,10L), new Pair<>(5L,10L),     // T12, T13, T14
+                                                  new Pair<>(0L,0L), new Pair<>(5L,10L)));                           // T15, T16
+
         marking = MatrixUtils.createRealVector(new double[] {0, 1, 0, 3, 0, 1, 0, 1, 0, 2, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1});
         marking.setEntry(0, p0);
 
-        enabledByTokens = new int[] {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        enabledByTokens = new int[incidenceMatrix.getColumnDimension()];
+        Arrays.fill(enabledByTokens, 0);
 
+        enabledByTokens[0] = 1;
         if (marking.getEntry(0) > 0) {
             enabledByTokens[1] = 1;
             enabledByTokens[2] = 1;
         }
+
+        transitionsTimeStamps = new long[incidenceMatrix.getColumnDimension()];
+        transitionsStatus = new Status[incidenceMatrix.getColumnDimension()];
     }
 
 
@@ -106,8 +128,93 @@ public class PetriNet {
 
 
     /**
-     * Crea un vector de disparo a partir del numero de la transicion que se desea disparar.
-     * @param transition Numero de transicion que se desea disparar.
+     * Devuelve el stado de disparo de una transición.
+     * @param transition transición que se desea analizar.
+     * @return estado de la transición.
+     */
+    public Status getTransitionStatus(int transition) {
+        return transitionsStatus[transition];
+    }
+
+
+    /**
+     * Obtiene el intervalo de tiempo [alfa,beta] de una transición.
+     * @param transition transición que se desea analizar.
+     * @return par de tiempos alfa y beta.
+     */
+    public Pair<Long, Long> getTransitionTimes(int transition) {
+        return alphaBeta.get(transition);
+    }
+
+
+    /**
+     * Obtiene la marca de tiempo de cuando una transición fue habilitada por tokens.
+     * @param transition transición que se desea analizar.
+     * @return time stamp de la transición.
+     */
+    public long getTransitionTimeStamp(int transition) {
+        return transitionsTimeStamps[transition];
+    }
+
+
+    /**
+     * Setea el time stamp de una transición.
+     * @param transition transición a configurar.
+     */
+    private void setTransitionTimeStamp(int transition) {
+        transitionsTimeStamps[transition] = System.currentTimeMillis();
+    }
+    
+    
+    /**
+     * Verifica si una transición esta habilitada. Para estar habilitada debe estar
+     * habilitada por marcado (tokens) y por tiempo, es decir estar dentro de la
+     * ventana temporal [alfa,beta].
+     * @param transition transición a verificar.
+     * @return true si la transición esta habilitada, false en caso contrario.
+     */
+    private boolean isEnabled(int transition) {
+        // Si no está habilitada por marcado, devuelve false.
+        if (enabledByTokens[transition] == 0) {
+            transitionsStatus[transition] = Status.NO_TOKENS;
+            return false;
+        }
+        // Si está habilitada por marcado, hay que verificar si está habilitada por tiempo.
+        else if (enabledByTokens[transition] == 1){
+            // Si alfa y beta son 0, no es una transición temporal.
+            if (alphaBeta.get(transition).getKey() == 0L && alphaBeta.get(transition).getValue() == 0L) {
+                transitionsStatus[transition] = Status.ENABLED;
+                return true;
+            }
+
+            long time = System.currentTimeMillis();
+
+            // Verifica si se intenta disparar antes del intervalo de tiempo de habilitación.
+            if (time < (transitionsTimeStamps[transition] + alphaBeta.get(transition).getKey())) {
+                transitionsStatus[transition] = Status.BEFORE_WINDOW;
+                return false;
+            }
+            // Verifica si pasó el tiempo de habilitación.
+            else if (time > (transitionsTimeStamps[transition] + alphaBeta.get(transition).getValue())) {
+                transitionsStatus[transition] = Status.AFTER_WINDOW;
+                return false;
+            }
+            // Si llega hasta aquí, la transición está habilitada.
+            else {
+                transitionsStatus[transition] = Status.ENABLED;
+                return true;
+            }
+
+        }
+        else {
+            throw new RuntimeException("Vector enabledByToken invalido. enabledByToken[" + transition + "] = " + enabledByTokens[transition]);
+        }
+    }
+
+
+    /**
+     * Crea un vector de disparo a partir del numero de la transición que se desea disparar.
+     * @param transition Numero de transición que se desea disparar.
      * @return RealVector que es el vector de disparo.
      */
     private RealVector createTransitionVector(int transition) {
@@ -153,7 +260,8 @@ public class PetriNet {
 
 
     /**
-     * Actualiza el vector de transiciones habilitadas por marcado.
+     * Actualiza el vector de transiciones habilitadas por marcado. Utiliza la matriz de incidencia para obtener los
+     * arcos que van hacia cada transición y el vector de marcado para corroborar si las plazas tienen tokens.
      */
     private void updateEnabledTransitions() {
         int places = incidenceMatrix.getRowDimension();
@@ -167,18 +275,21 @@ public class PetriNet {
                     break;
                 }
             }
+            setTransitionTimeStamp(t);
         }
     }
 
 
     /**
-     * Dispara una transicion, si la misma esta habilitada.
-     * @param transition Numero de transicion que se desea disparar.
-     * @return true si la transicion fue disparada, en caso contrario false.
+     * Dispara una transición, si la misma esta habilitada.
+     * @param transition Numero de transición que se desea disparar.
+     * @return true si la transición fue disparada, en caso contrario false.
      * @throws InvalidMarkingException
      */
     public boolean fire(int transition) throws InvalidMarkingException {
-        if (enabledByTokens[transition] == 1) {
+        // Verifica si la transición está habilitada.
+        if (isEnabled(transition)) {
+            // Utiliza la ecuación fundamental para actualizar el estado.
             marking = marking.add(incidenceMatrix.operate(createTransitionVector(transition)));
             if (!holdsPlaceInvariants()) {
                 throw new InvalidMarkingException("Marcado Invalido. No se cumplen los invariantes de plaza.");

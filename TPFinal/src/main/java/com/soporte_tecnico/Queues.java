@@ -9,14 +9,14 @@ import com.soporte_tecnico.exceptions.TaskInterruptedException;
 
 public class Queues {
     
-    private ArrayList<Semaphore> queues;       // Lista de colas de condicion
-    private int[] blockedList;                 // Array que representa si hay hilos en alguna cola de condicion
-    private final int nQueues;                 // Cantidad de dolas de condicion
+    private ArrayList<Semaphore> queues;       // Lista de colas de condición
+    private int[] blockedList;                 // Array que representa si hay hilos en alguna cola de condición
+    private final int nQueues;                 // Cantidad de dolas de condición
 
 
     /**
      * Constructor.
-     * @param n cantidad de colas de condicion a inicializar.
+     * @param n cantidad de colas de condición a inicializar.
      */
     public Queues(int n) {
         this.nQueues = n;
@@ -42,8 +42,8 @@ public class Queues {
 
 
     /**
-     * Manda un hilo a esperar en una cola de condicion.
-     * @param transition numero de la transicion/cola de condicion.
+     * Manda un hilo a esperar en una cola de condición.
+     * @param transition numero de la transicion/cola de condición.
      */
     public void acquire(int transition) {
         synchronized (this) {
@@ -58,8 +58,8 @@ public class Queues {
 
 
     /**
-     * Libera un hilo de una cola de condicion.
-     * @param transition numero de la transicion/cola de condicion.
+     * Libera un hilo de una cola de condición.
+     * @param transition numero de la transición/cola de condición.
      */
     public void release(int transition) {
         queues.get(transition).release();

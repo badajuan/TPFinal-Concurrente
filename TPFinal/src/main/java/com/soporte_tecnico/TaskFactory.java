@@ -7,19 +7,19 @@ public class TaskFactory {
     
     private static volatile TaskFactory instance;
     
-    private int importersCounter;        // Cuenta de hilos importers
-    private int loadersCounter;          // Cuenta de hilos loaders
-    private int filtersCounter;          // Cuenta de hilos filters
-    private int resizersCounter;         // Cuenta de hilos resizers
-    private int exportersCounter;        // Cuenta de hilos exporters
+    private int importersCounter;        // Cuenta de hilos importers.
+    private int loadersCounter;          // Cuenta de hilos loaders.
+    private int filtersCounter;          // Cuenta de hilos filters.
+    private int resizersCounter;         // Cuenta de hilos resizers.
+    private int exportersCounter;        // Cuenta de hilos exporters.
     
-    private int maxImporters;            // Maxima cantidad de importers
-    private int maxLoaders;              // Maxima cantidad de loaders
-    private int maxFilters;              // Maxima cantidad de filters
-    private int maxResizers;             // Maxima cantidad de resizers
-    private int maxExporters;            // Maxima cantidad de exporters
+    private int maxImporters;            // Maxima cantidad de importers.
+    private int maxLoaders;              // Maxima cantidad de loaders.
+    private int maxFilters;              // Maxima cantidad de filters.
+    private int maxResizers;             // Maxima cantidad de resizers.
+    private int maxExporters;            // Maxima cantidad de exporters.
 
-    private Map<Task, Thread> tasks;     // Contenedor de tareas y sus hilos
+    private Map<Task, Thread> tasks;     // Contenedor de tareas y sus hilos.
 
 
     /**

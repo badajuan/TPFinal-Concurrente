@@ -9,8 +9,8 @@ import java.util.Date;
 
 public class Log {
 
-    private static Log instance;          // Puntero a la instancia Log
-    private PrintWriter fileWriter;       // Writer del log
+    private static Log instance;          // Puntero a la instancia Log.
+    private PrintWriter fileWriter;       // Writer del log.
 
 
     /**

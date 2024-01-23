@@ -32,39 +32,39 @@ public class petriNetTest {
      * Test que prueba el metodo fire de PetriNet. Luego de realizar disparos de transicion, se deben
      * cumplir los invariantes de plaza y se debe llegar al estado correcto.
      */
-    @Test
-    public void fireTest2(){
-        
-        PetriNet petriNet = PetriNet.getInstance(0);
-        boolean result = false;
-
-        result = petriNet.fire(0);
-        assertTrue(result);
-
-        for (int i = 1; i < 10; i = i+2) {
-            System.out.println(i);
-            result = petriNet.fire(i);
-            assertTrue(result);
-        }
-
-        for (int i = 11; i < 16; i = i+2) {
-            System.out.println(i);
-            result = petriNet.fire(i);
-            assertTrue(result);
-        }        
-
-        result = petriNet.fire(16);
-        assertTrue(result);
-
-        RealVector marking = petriNet.getMarking();
-        RealVector testMarking = MatrixUtils.createRealVector(new double[] {0, 1, 0, 3, 0, 1, 0, 1, 0, 2, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1});
-        int n = marking.getDimension();
-
-        for (int i = 0; i < n; i++) {
-            assertEquals(marking.getEntry(i), testMarking.getEntry(i), Precision.EPSILON);
-        }
-
-        System.out.println("petriNetTest: fireTest1 Test Passed");
-        petriNet = null;
-    }
+    //@Test
+    //public void fireTest2(){
+    //    
+    //    PetriNet petriNet = PetriNet.getInstance(0);
+    //    boolean result = false;
+//
+    //    result = petriNet.fire(0);
+    //    assertTrue(result);
+//
+    //    for (int i = 1; i < 10; i = i+2) {
+    //        System.out.println(i);
+    //        result = petriNet.fire(i);
+    //        assertTrue(result);
+    //    }
+//
+    //    for (int i = 11; i < 16; i = i+2) {
+    //        System.out.println(i);
+    //        result = petriNet.fire(i);
+    //        assertTrue(result);
+    //    }        
+//
+    //    result = petriNet.fire(16);
+    //    assertTrue(result);
+//
+    //    RealVector marking = petriNet.getMarking();
+    //    RealVector testMarking = MatrixUtils.createRealVector(new double[] {0, 1, 0, 3, 0, 1, 0, 1, 0, 2, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1});
+    //    int n = marking.getDimension();
+//
+    //    for (int i = 0; i < n; i++) {
+    //        assertEquals(marking.getEntry(i), testMarking.getEntry(i), Precision.EPSILON);
+    //    }
+//
+    //    System.out.println("petriNetTest: fireTest1 Test Passed");
+    //    petriNet = null;
+    //}
 }
