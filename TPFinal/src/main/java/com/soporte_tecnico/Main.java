@@ -133,15 +133,22 @@ public class Main {
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;
 
+            // Skip the header line
+            br.readLine();
+
             while ((line = br.readLine()) != null) {
-                String[] parts = line.split(",");
+                String[] parts = line.split("-");
                 if (parts.length == 2) {
-                    Long key = Long.parseLong(parts[0].trim());
-                    Long value = Long.parseLong(parts[1].trim());
-                    transitionTimes.add(new Pair<>(key, value));
-                }
-                else {
-                    System.out.println("Formato de linea invalido: " + line);
+                    String[] values = parts[1].split(",");
+                    if (values.length == 2) {
+                        Long key = Long.parseLong(values[0].trim());
+                        Long value = Long.parseLong(values[1].trim());
+                        transitionTimes.add(new Pair<>(key, value));
+                    } else {
+                        System.out.println("Invalid line format: " + line);
+                    }
+                } else {
+                    System.out.println("Invalid line format: " + line);
                 }
             }
         } catch (IOException | NumberFormatException e) {
