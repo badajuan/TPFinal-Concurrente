@@ -8,6 +8,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
+import org.apache.commons.math3.linear.RealVector;
 import org.apache.commons.math3.util.Pair;
 
 import com.soporte_tecnico.PetriNet.Status;
@@ -49,13 +50,13 @@ public class Monitor {
      * @param segment segmendo a priorizar.
      * @param laod carga del segmento a priorizar.
      */
-    private Monitor(int p0, String mode, String segment, double load) {
+    private Monitor(int p0, String segment, double load) {
         this.mutex = new Semaphore(1);
         this.petriNet = PetriNet.getInstance(p0);
         this.transitionQueues = new Queues(this.petriNet.getNtransitions());
         this.counterList = new ArrayList<>(Collections.nCopies(this.petriNet.getNtransitions(), 0.0));
         this.log = Log.getInstance();
-        this.politic = new Politic(this.petriNet.getNtransitions(), mode, segment, load);
+        this.politic = new Politic(this.petriNet.getNtransitions(), segment, load);
 
     }
 
@@ -89,7 +90,7 @@ public class Monitor {
      * @param laod carga del segmento a priorizar.
      * @return puntero a la instancia de Monitor.
      */
-    public static Monitor getInstance(int p0, String mode, String segment, double load) {
+    public static Monitor getInstance(int p0, String segment, double load) {
         
         Monitor result = instance;
         if (result != null) {
@@ -98,7 +99,7 @@ public class Monitor {
         
         synchronized(Monitor.class) {
             if (instance == null) {
-                instance = new Monitor(p0, mode, segment, load);
+                instance = new Monitor(p0, segment, load);
             }
             return instance;
         }
@@ -106,11 +107,11 @@ public class Monitor {
 
 
     /**
-     * Devuelve la red de petri del monitor.
-     * @return red de petri del monitor.
+     * Obtiene el marcado actual de la red de petri del monitor.
+     * @return marcado de la red.
      */
-    public PetriNet getPetriNet() {
-        return this.petriNet;
+    public RealVector getCurrentState() {
+        return petriNet.getMarking();
     }
 
 
@@ -139,6 +140,15 @@ public class Monitor {
 
         return IntStream.range(0, enabledTransitions.length).map(i -> enabledTransitions[i] & blockedList[i]).toArray();
     }
+
+
+    /**
+     * Establece las ventanas de tiempo para cada transicion.
+     * @param times ArrayList con pares [alfa.beta]
+     */
+    public void setTransitionsTime(ArrayList<Pair<Long, Long>> times) {
+        petriNet.setTransitionsTime(times);
+    } 
 
 
     /**
@@ -225,7 +235,7 @@ public class Monitor {
                         TimeUnit.MILLISECONDS.sleep(sleepTime);
                         mutex.acquire();
                     } catch (InterruptedException e) {
-                        throw new RuntimeException();
+                        throw new TaskInterruptedException("Tarea interrumpida");
                     }
 
                     k = true;

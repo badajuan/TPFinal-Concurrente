@@ -17,7 +17,7 @@ public class PetriNet {
     private int[] enabledByTokens;                                           // Vector de transiciones habilitadas por tokens.
 
     private long[] transitionsTimeStamps;                                    // Marca de tiempo de cuando una transición fue habilitada por tokens.
-    private final ArrayList<Pair<Long, Long>> alphaBeta;                     // Par alfa-beta de tiempos de intervalo de cada transicion.
+    private  ArrayList<Pair<Long, Long>> alphaBeta;                          // Par alfa-beta de tiempos de intervalo de cada transicion.
 
     public enum Status {ENABLED, NO_TOKENS, BEFORE_WINDOW, AFTER_WINDOW}     // Flags de status que indican si una transición se puede disparar o porque no.
 
@@ -55,12 +55,13 @@ public class PetriNet {
                 });
 
 
+        // Inicializa la red como no temporalizada.
         alphaBeta = new ArrayList<>(Arrays.asList(new Pair<>(0L,0L), new Pair<>(0L,0L), new Pair<>(0L,0L),       // T0, T1, T2
-                                                  new Pair<>(250L,10L), new Pair<>(5L,10L), new Pair<>(0L, 0L),    // T3, T4, T5
-                                                  new Pair<>(0L,0L), new Pair<>(5L,10L), new Pair<>(5L,10L),     // T6, T7, T8
-                                                  new Pair<>(5L,10L), new Pair<>(5L,10L), new Pair<>(0L,0L),     // T9, T10, T11
-                                                  new Pair<>(0L,0L), new Pair<>(5L,10L), new Pair<>(5L,10L),     // T12, T13, T14
-                                                  new Pair<>(0L,0L), new Pair<>(5L,10L)));                           // T15, T16
+                                                  new Pair<>(0L,0L), new Pair<>(0L,0L), new Pair<>(0L,0L),       // T3, T4, T5
+                                                  new Pair<>(0L,0L), new Pair<>(0L,0L), new Pair<>(0L,0L),       // T6, T7, T8
+                                                  new Pair<>(0L,0L), new Pair<>(0L,0L), new Pair<>(0L,0L),       // T9, T10, T11
+                                                  new Pair<>(0L,0L), new Pair<>(0L,0L), new Pair<>(0L,0L),       // T12, T13, T14
+                                                  new Pair<>(0L,0L), new Pair<>(0L,0L)));                            // T15, T16
 
         marking = MatrixUtils.createRealVector(new double[] {0, 1, 0, 3, 0, 1, 0, 1, 0, 2, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1});
         marking.setEntry(0, p0);
@@ -76,6 +77,8 @@ public class PetriNet {
 
         transitionsTimeStamps = new long[incidenceMatrix.getColumnDimension()];
         transitionsStatus = new Status[incidenceMatrix.getColumnDimension()];
+
+        updateEnabledTransitions();
     }
 
 
@@ -164,6 +167,15 @@ public class PetriNet {
     private void setTransitionTimeStamp(int transition) {
         transitionsTimeStamps[transition] = System.currentTimeMillis();
     }
+
+
+    /**
+     * Establece las ventanas de tiempo para cada transicion.
+     * @param times ArrayList con pares [alfa.beta]
+     */
+    public void setTransitionsTime(ArrayList<Pair<Long, Long>> times) {
+        alphaBeta = times;
+    }
     
     
     /**
@@ -199,7 +211,7 @@ public class PetriNet {
                 transitionsStatus[transition] = Status.AFTER_WINDOW;
                 return false;
             }
-            // Si llega hasta aquí, la transición está habilitada.
+            // El disparo está dentro del intervalo de habilitación y la transición se dispara.
             else {
                 transitionsStatus[transition] = Status.ENABLED;
                 return true;
@@ -267,7 +279,7 @@ public class PetriNet {
         int places = incidenceMatrix.getRowDimension();
         int transitions = incidenceMatrix.getColumnDimension();
  
-        for (int t = 1; t < transitions; t++) {
+        for (int t = 0; t < transitions; t++) {
             enabledByTokens[t] = 1;
             for (int p = 0; p < places; p++) {
                 if ((incidenceMatrix.getEntry(p, t) == -1) && (marking.getEntry(p) < 1)) {

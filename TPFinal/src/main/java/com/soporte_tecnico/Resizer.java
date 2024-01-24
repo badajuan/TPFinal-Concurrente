@@ -2,6 +2,8 @@ package com.soporte_tecnico;
 
 import java.util.concurrent.TimeUnit;
 
+import com.soporte_tecnico.exceptions.TaskInterruptedException;
+
 public class Resizer extends Task {
 
     /**
@@ -25,7 +27,7 @@ public class Resizer extends Task {
                 this.monitor.fireTransition(transitions[index]);
                 index = (index + 1) % transitions.length;
                 TimeUnit.MILLISECONDS.sleep(2);
-            } catch (InterruptedException e) {
+            } catch (InterruptedException | TaskInterruptedException e) {
                 this.setStop(true);
             }   
         } 

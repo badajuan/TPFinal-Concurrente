@@ -1,18 +1,24 @@
 package com.soporte_tecnico;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.math3.util.Pair;
+
 public class Main {
     public static void main(String[] args) {
 
-        boolean stopProgram = false;             // Flag de finalizacion de programa.
-        final int initialImages = 200;             // Cantidad de imagenes iniciales en p0.
-        final Integer nThreads = 8;              // Cantidad de hilos.
-        final Integer maxTinvatiants = 200;      // Invariantes de transicion a cumplir para finalizar el programa.
-        final Monitor monitor;                   // Monitor.
+        boolean stopProgram = false;                          // Flag de finalizacion de programa.
+        final int initialImages = 6;                          // Cantidad de imagenes iniciales en p0.
+        final Integer nThreads = 8;                           // Cantidad de hilos.
+        final Integer maxTinvatiants = 200;                   // Invariantes de transicion a cumplir para finalizar el programa.
+        final Monitor monitor;                                // Monitor.
+        final ArrayList<Pair<Long, Long>> transitionTimes;
 
         // Factory de hilos/tareas.
         final TaskFactory taskFactory = TaskFactory.getInstance(1,
@@ -34,37 +40,12 @@ public class Main {
         // Tipo de tarea ejecutada por cada hilo.
         final ArrayList<String> taskTypes = new ArrayList<String>(Arrays.asList("Importer", "Loader", "Loader", "Filter", "Filter", "Resizer", "Resizer", "Exporter"));
         
-
-        if (args.length == 0) {
-            // Si el programa se ejecuta sin argumentos, no hay prioridades y se invoca este constructor de monitor.
-            monitor = Monitor.getInstance(initialImages);
-        }
-        else if (args.length == 3) {
-            String mode = args[0];       // Primer argumento: modo Balance o Priority.
-            String segment = args[1];    // Seguendo argumento: Hilo a priorizar.
-            float setLoad = 0.0f;        // Tercedr argumento: Porcentaje de carga extra en el hilo con prioridad.
-
-            // Si el tercer argumento no es un float, termina.
-            try {
-                setLoad = Float.parseFloat(args[2]);
-            } catch (NumberFormatException e) {
-                usage();
-            }
-
-            // Verifica que los argumentos sean correctos.
-            if (("Balance".equals(mode) || "Priority".equals(mode)) && segment.length() == 1 && segment.charAt(0) >= 'A' && segment.charAt(0) <= 'F' && setLoad > 0 && setLoad <= 1) {
-                monitor = Monitor.getInstance(initialImages, mode, segment, setLoad);
-            }
-            else {
-                monitor = null;
-                usage();
-            }
-        }
-        else {
-            monitor = null;
-            usage();
-        }
+        monitor = parseArgs(args, initialImages);
         // Si llega hasta aqui, se pasaron los argumentos correctos o no se pasaron argumentos (sin prioridad).
+
+        // Obtiene los intervalos de tiempo de cada transicion del archivo de configuración y configura la red de petri del monitor.
+        transitionTimes = parseConfigFile(args[0]);
+        monitor.setTransitionsTime(transitionTimes);
 
         // Pide al factory la creación de las tareas.
         for (int i = 0; i < nThreads; i++) {
@@ -103,15 +84,82 @@ public class Main {
         System.out.println("Programa Finalizado");
     }
 
+
+    /**
+     * Parsea los argumentos pasados al programa.
+     * @param args String de argumentos.
+     * @param initialImages cantidades inicial de imagenes (p0).
+     * @return instancia del monitor.
+     */
+    private static Monitor parseArgs(String[] args, int initialImages) {
+        
+        Monitor monitor;
+        if (args.length == 1) {
+            // El programa se ejecuta sin argumentos de prioridades y se invoca este constructor de monitor.
+            monitor = Monitor.getInstance(initialImages);
+        }
+        else if (args.length == 3) {
+            float setLoad = 0.0f;        // Primer argumento: Porcentaje de carga extra en el hilo con prioridad.
+            String segment = args[2];    // Seguendo argumento: Hilo a priorizar.
+            
+            // Si el primer argumento no es un float, termina.
+            try {
+                setLoad = Float.parseFloat(args[1]);
+            } catch (NumberFormatException e) {
+                usage();
+            }
+
+            // Verifica que los argumentos sean correctos.
+            if (segment.length() == 1 && segment.charAt(0) >= 'A' && segment.charAt(0) <= 'F' && setLoad >= 0 && setLoad <= 1) {
+                monitor = Monitor.getInstance(initialImages, segment, setLoad);
+            }
+            else {
+                monitor = null;
+                usage();
+            }
+        }
+        else {
+            monitor = null;
+            usage();
+        }
+
+        return monitor;
+    }
+
+
+    private static ArrayList<Pair<Long, Long>> parseConfigFile(String filePath) {
+        ArrayList<Pair<Long, Long>> transitionTimes = new ArrayList<>();
+
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            String line;
+
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length == 2) {
+                    Long key = Long.parseLong(parts[0].trim());
+                    Long value = Long.parseLong(parts[1].trim());
+                    transitionTimes.add(new Pair<>(key, value));
+                }
+                else {
+                    System.out.println("Formato de linea invalido: " + line);
+                }
+            }
+        } catch (IOException | NumberFormatException e) {
+            e.printStackTrace();
+        }
+
+        return transitionTimes;
+    }
+
     
     /**
      * Funcion que imprime como ejecutar el programa con argumentos.
      */
     private static void usage() {
-        System.out.println("Usage: java TPFinal [Argument1 Argument2 Argument3]");
-        System.out.println("Argument1: Balance or Priority");
-        System.out.println("Argument2: A to F");
-        System.out.println("Argument3: Float number (greater than 0 and less or equal than 1)");
+        System.out.println("Uso: java TPFinal [Argument1 Argument2 Argument2]");
+        System.out.println("Argument1: Archivo de configuracion");
+        System.out.println("Argument2: Relacion de prioridad: 0 (sin prioridad) o un valor mayor o igual que 0.5 y menor o igual que 1.0");
+        System.out.println("Argument3: Segmento a priorizar: A al F");
 
         System.exit(1);
     }

@@ -2,6 +2,8 @@ package com.soporte_tecnico;
 
 import java.util.concurrent.TimeUnit;
 
+import com.soporte_tecnico.exceptions.TaskInterruptedException;
+
 public class Loader extends Task {
 
     /**
@@ -25,7 +27,7 @@ public class Loader extends Task {
                 this.monitor.fireTransition(transitions[index]);
                 index = (index + 1) % transitions.length;
                 TimeUnit.MILLISECONDS.sleep(5);
-            } catch (InterruptedException e) {
+            } catch (InterruptedException | TaskInterruptedException e) {
                 this.setStop(true);
             }   
         }

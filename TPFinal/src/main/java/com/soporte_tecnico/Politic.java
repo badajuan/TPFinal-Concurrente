@@ -50,16 +50,19 @@ public class Politic {
      * @param laod carga del segmento a priorizar.
      * @throws RuntimeException
      */
-    Politic(int nTransitions, String mode, String segment, double load) throws RuntimeException {
+    Politic(int nTransitions, String segment, double load) throws RuntimeException {
         this.nTransitions = nTransitions;
         this.load = load;
         this.highPriorityT = segmentTransition.get(segment);
-        this.mode = mode;
         this.lowPriorityT = priorityPairs.get(this.highPriorityT);
 
-        if (!("Balance".equals(mode) || "Priority".equals(mode))) {
-            throw new RuntimeException("Modo de politica incorrecto. mode: " + mode);
+        if (load == 0.0) {
+            this.mode = "Balance";
         }
+        else {
+            this.mode = "Priority";
+        }
+
         if (this.highPriorityT == null) {
             throw new RuntimeException("Segmento invalido. segment: " + segment);
         }   
