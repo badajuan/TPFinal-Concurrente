@@ -1,0 +1,87 @@
+<diagram program="umletino" version="15.1"><zoom_level>10</zoom_level><element><id>UMLClass</id><coordinates><x>0</x><y>20</y><w>210</w><h>210</h></coordinates><panel_attributes>Monitor
+--
+- instance: Monitor
+- mutex: Semaphore 
+- counterList: List&lt;Integer&gt;
+- transitionQueues: Queues
+- politic: Politic
+--
+- getInstance()
++ getPetriNet()
++ getEnabledBlockedTransitions()
++ fireTransition()
++ endExecution
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>270</x><y>20</y><w>210</w><h>210</h></coordinates><panel_attributes>PetriNet
+--
+- instance: PetriNet 
+- incidenceMatrix: RealMatrix
+- marking: RealVector
+- enabledByTokens[]: int
+--
++ getInstance() 
++ getMarking()
++ getEnabledTransitions()
++ getNtransitions()
++ createTransitionVector()
++ holdsPlaceInvariants()
++ updateEnabledTransitions()
++ fire()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>540</x><y>100</y><w>210</w><h>210</h></coordinates><panel_attributes>TaskFactory
+--
+- instance: TaskFactory
+- loadersCounter: int
+- filtersCounter: int
+- resizersCounter: int
+- exportersCounter: int
+- maxLoaders: int
+- maxFilters: int
+- maxResizers: int
+- maxExporters: int
+--
++ getInstance()
++ getTasks()
++ newTask()
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>0</x><y>270</y><w>150</w><h>120</h></coordinates><panel_attributes>Log
+--
+- instance: Log
+- fileWriter: PrintWriter
+--
++ getInstance()
++ logmessage()
++ logtransition()
++ closeLog()
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>540</x><y>350</y><w>210</w><h>150</h></coordinates><panel_attributes>&lt;&lt;Task&gt;&gt;
+--
+- name: String
+- stop: boolean
+- transitions[]: int
+- monitor: Monitor 
+--
++ doTask()
++ setStop()
++ getName()
++ run()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>50</x><y>410</y><w>190</w><h>140</h></coordinates><panel_attributes>Queues
+--
+- queues: ArrayList&lt;Semaphore&gt;
+- blockedList[]: int
+- nQueues: int
+--
++ getBlockedList()
++ acquire()
++ release()
++ releaseAll()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>370</x><y>560</y><w>100</w><h>60</h></coordinates><panel_attributes>Resizer
+--
+
+--
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>480</x><y>560</y><w>120</w><h>60</h></coordinates><panel_attributes>Filter
+--
+
+--
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>610</x><y>560</y><w>120</w><h>60</h></coordinates><panel_attributes>Exporter
+--
+
+--
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>740</x><y>560</y><w>120</w><h>60</h></coordinates><panel_attributes>Loader
+--
+
+--
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>430</x><y>490</y><w>150</w><h>90</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>130;10;10;70</additional_attributes></element><element><id>Relation</id><coordinates><x>540</x><y>490</y><w>80</w><h>90</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>60;10;10;70</additional_attributes></element><element><id>Relation</id><coordinates><x>680</x><y>490</y><w>130</w><h>90</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;110;70</additional_attributes></element><element><id>Relation</id><coordinates><x>630</x><y>490</y><w>70</w><h>90</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;50;70</additional_attributes></element><element><id>Relation</id><coordinates><x>80</x><y>220</y><w>30</w><h>70</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;50</additional_attributes></element><element><id>Relation</id><coordinates><x>200</x><y>100</y><w>90</w><h>30</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;70;10</additional_attributes></element><element><id>Relation</id><coordinates><x>160</x><y>220</y><w>30</w><h>210</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;190</additional_attributes></element><element><id>Relation</id><coordinates><x>610</x><y>300</y><w>30</w><h>70</h></coordinates><panel_attributes></panel_attributes><additional_attributes>10;50;10;10</additional_attributes></element></diagram>
