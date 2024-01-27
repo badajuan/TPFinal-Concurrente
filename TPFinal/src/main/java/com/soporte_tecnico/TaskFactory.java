@@ -87,11 +87,11 @@ public class TaskFactory {
      * @param taskType String con el tipo de tarea.
      * @return Hilo que ejecuta la tarea solicitada al factory.
      */
-    public Thread newTask(String taskType, int[] transitions, Monitor monitor) {
+    public Thread newTask(String taskType, int[] transitions, Monitor monitor, int maxImages) {
 
         Task task;
         if (taskType.equals("Importer") && this.importersCounter < this.maxImporters) {
-            task = new Importer(taskType + " " + ++this.importersCounter, transitions, monitor);
+            task = new Importer(taskType + " " + ++this.importersCounter, transitions, monitor, maxImages);
         }        
         else if (taskType.equals("Loader") && this.loadersCounter < this.maxLoaders) {
             task = new Loader(taskType + " " + ++this.loadersCounter, transitions, monitor);

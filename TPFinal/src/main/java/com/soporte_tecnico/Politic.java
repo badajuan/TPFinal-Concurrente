@@ -14,12 +14,12 @@ public class Politic {
     
     
     // Mapa de segmentos de la red asociados a su transicion inicial
-    private final Map<String, Integer> segmentTransition = new HashMap<String, Integer>() {{put("A", 1);
-                                                                                            put("B", 2);
-                                                                                            put("C", 5);
-                                                                                            put("D", 6);
-                                                                                            put("E", 11);
-                                                                                            put("F", 12);}};
+    private final Map<String, Integer> segmentTransition = new HashMap<String, Integer>() {{put("B", 1);
+                                                                                            put("C", 2);
+                                                                                            put("D", 5);
+                                                                                            put("E", 6);
+                                                                                            put("F", 11);
+                                                                                            put("G", 12);}};
 
     // Mapa de transiciones iniciales de segmentos que pueden competir por prioridad
     private final Map<Integer, Integer> priorityPairs = new HashMap<Integer, Integer>() {{put(1, 2);

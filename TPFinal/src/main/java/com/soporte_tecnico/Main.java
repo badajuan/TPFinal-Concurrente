@@ -14,7 +14,7 @@ public class Main {
     public static void main(String[] args) {
 
         boolean stopProgram = false;                          // Flag de finalizacion de programa.
-        final int initialImages = 6;                          // Cantidad de imagenes iniciales en p0.
+        final int initialImages = 0;                          // Cantidad de imagenes iniciales en p0.
         final Integer nThreads = 8;                           // Cantidad de hilos.
         final Integer maxTinvatiants = 200;                   // Invariantes de transicion a cumplir para finalizar el programa.
         final Monitor monitor;                                // Monitor.
@@ -49,7 +49,7 @@ public class Main {
 
         // Pide al factory la creación de las tareas.
         for (int i = 0; i < nThreads; i++) {
-            Thread task = taskFactory.newTask(taskTypes.get(i), transitions.get(i), monitor);
+            Thread task = taskFactory.newTask(taskTypes.get(i), transitions.get(i), monitor, maxTinvatiants);
             task.start();
         }
 
@@ -110,7 +110,7 @@ public class Main {
             }
 
             // Verifica que los argumentos sean correctos.
-            if (segment.length() == 1 && segment.charAt(0) >= 'A' && segment.charAt(0) <= 'F' && setLoad >= 0 && setLoad <= 1) {
+            if (segment.length() == 1 && segment.charAt(0) >= 'A' && segment.charAt(0) <= 'F' && (setLoad == 0 || (setLoad >= 0.5 && setLoad <= 1))) {
                 monitor = Monitor.getInstance(initialImages, segment, setLoad);
             }
             else {
@@ -127,7 +127,13 @@ public class Main {
     }
 
 
+    /**
+     * Función que parsea el archivo de configuración con los tiempos de las transiciones temporales.
+     * @param filePath path del archivo de configuración.
+     * @return Lista con intervalos de tiempo [alfa,beta].
+     */
     private static ArrayList<Pair<Long, Long>> parseConfigFile(String filePath) {
+        
         ArrayList<Pair<Long, Long>> transitionTimes = new ArrayList<>();
 
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
@@ -145,10 +151,12 @@ public class Main {
                         Long value = Long.parseLong(values[1].trim());
                         transitionTimes.add(new Pair<>(key, value));
                     } else {
-                        System.out.println("Invalid line format: " + line);
+                        System.out.println("Formato invalido: " + line);
+                        System.exit(1);
                     }
                 } else {
-                    System.out.println("Invalid line format: " + line);
+                    System.out.println("Formato invalido: " + line);
+                    System.exit(1);
                 }
             }
         } catch (IOException | NumberFormatException e) {
@@ -163,10 +171,10 @@ public class Main {
      * Funcion que imprime como ejecutar el programa con argumentos.
      */
     private static void usage() {
-        System.out.println("Uso: java TPFinal [Argument1 Argument2 Argument2]");
-        System.out.println("Argument1: Archivo de configuracion");
-        System.out.println("Argument2: Relacion de prioridad: 0 (sin prioridad) o un valor mayor o igual que 0.5 y menor o igual que 1.0");
-        System.out.println("Argument3: Segmento a priorizar: A al F");
+        System.out.println("Uso: java TPFinal.jar timesConfig.txt [Opcion1 Opcion2]");
+        System.out.println("timesConfig.txt: Archivo de configuracion de tiempos de transiciones");
+        System.out.println("Opcion1:       Relacion de prioridad: 0 (sin prioridad) o un valor mayor o igual que 0.5 y menor o igual que 1.0");
+        System.out.println("Opcion2:       Segmento a priorizar: B al G");
 
         System.exit(1);
     }
