@@ -15,6 +15,7 @@ public class PetriNet {
     private final RealMatrix incidenceMatrix;                                // Matriz de incidencia de la red de petri .
     private RealVector marking;                                              // Vector de marcado de la red.
     private int[] enabledByTokens;                                           // Vector de transiciones habilitadas por tokens.
+    private int proseccedTokensCounter;
 
     private long[] transitionsTimeStamps;                                    // Marca de tiempo de cuando una transición fue habilitada por tokens.
     private  ArrayList<Pair<Long, Long>> alphaBeta;                          // Par alfa-beta de tiempos de intervalo de cada transicion.
@@ -79,7 +80,9 @@ public class PetriNet {
         transitionsTimeStamps = new long[incidenceMatrix.getColumnDimension()];
         transitionsStatus = new Status[incidenceMatrix.getColumnDimension()];
 
-        updateEnabledTransitions();   
+        updateEnabledTransitions();
+
+        proseccedTokensCounter = 0;
     }
 
 
@@ -268,6 +271,11 @@ public class PetriNet {
         if ((marking.getEntry(19) + marking.getEntry(20)) != 1) {
             return false;
         }
+        if ((marking.getEntry(0) + marking.getEntry(2) + marking.getEntry(4) + marking.getEntry(6) + marking.getEntry(8)
+        + marking.getEntry(10) + marking.getEntry(12) + marking.getEntry(13) + marking.getEntry(14) + marking.getEntry(16)
+        + marking.getEntry(17) + marking.getEntry(18) + marking.getEntry(19)) != proseccedTokensCounter) {
+            return false;
+        }
         return true;
     }
 
@@ -304,6 +312,12 @@ public class PetriNet {
         if (isEnabled(transition)) {
             // Utiliza la ecuación fundamental para actualizar el estado.
             marking = marking.add(incidenceMatrix.operate(createTransitionVector(transition)));
+            if (transition == 0) {
+                proseccedTokensCounter++;
+            }
+            if (transition == 16) {
+                proseccedTokensCounter--;
+            }
             if (!holdsPlaceInvariants()) {
                 throw new InvalidMarkingException("Marcado Invalido. No se cumplen los invariantes de plaza.");
             }

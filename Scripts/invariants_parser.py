@@ -27,7 +27,7 @@ def read_text_file(file_path: str):
         return None
 
 
-def parse_invariants(line: str):
+def parse_invariants(line: str, verbose: bool) -> (str, int):
     '''
     Parsea el contenido del log, buscando la cantidad de invariantes de transición cumplidos.
     Al finalizar imprime el resto no perteneciente a ningún invariante y la cantidad de
@@ -37,27 +37,38 @@ def parse_invariants(line: str):
     ----------
     line: str
         String con transiciones a parsear. Es el contenido del archivo log.
+    
+    verbose: bool
+        Si es True imprime el excedente de transiciones en cada iteración y la cuenta de invariantes encontrados.
+    
+    Return
+    ------
+    result, total: tuple(str, int)
+        String de transiciones que no pertenecen a un invariante y total de invariantes encontrados.
     '''
     
     total = 0
     while (True):
         result, found = re.subn(regex, groups, line, count=0)
-        #print(result)
         if found == 0:
             break
         total = total + found
         line = result
-    print(result)
-    print(total)
+        if verbose is True:
+            print('Resto:')
+            print(result)
+            print('Cuenta de invariantes: ' + str(total) + '\n')
+    return result, total
     
 
 def main(argv):
     file_path = None
+    verbose = False
 
     try:
-        opts, args = getopt.getopt(argv, "hf:", ["file="])
+        opts, args = getopt.getopt(argv, "hf:v", ["file=", "verbose"])
     except getopt.GetoptError:
-        print("Usage: script.py -f <file_path>")
+        print("Usage: script.py -f <file_path> [-v|--verbose]")
         sys.exit(2)
 
     for opt, arg in opts:
@@ -66,6 +77,8 @@ def main(argv):
             sys.exit()
         elif opt in ("-f", "--file"):
             file_path = arg
+        elif opt in ("-v", "--verbose"):
+            verbose = True
 
     if file_path is None:
         print("File path is required. Use -f or --file.")
@@ -82,7 +95,14 @@ def main(argv):
     content = content.replace("T16","TG")
 
     if content is not None:
-        parse_invariants(content)
+        result, total = parse_invariants(content, verbose)
+        print('Invariantes de transición encontrados: ' + str(total))
+        if len(result) != 0:
+            print('Se encuentran transiciones que no pertenecen a ningún invariante.')
+            print('Transiciones: ' + result)
+            print('STATUS: FAILED')
+        else:
+            print('STATUS: OK')
 
 if __name__ == "__main__":
     main(sys.argv[1:])
