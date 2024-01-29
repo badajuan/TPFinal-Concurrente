@@ -44,13 +44,11 @@ def main(argv):
             config_file_path = arg
 
     if not input_file_path or not output_file_path or not config_file_path:
-        print("Input, output, and config file paths are required.")
+        print("parser.py -i <input_file> -o <output_file> -c <config_file>")
         sys.exit(2)
 
-    # Properties list (P0, P1, ..., P19)
-    properties_list = [f"P{i}" for i in range(20)]
+    properties_list = [f"P{i}" for i in range(20)] # Lista de plazas
 
-    # Read configuration file
     config_places = parse_config(config_file_path)
 
     with open(input_file_path, 'r') as input_file:
@@ -65,17 +63,15 @@ def main(argv):
                 props_dict = parse_props(line)
                 states_props[state_number] = props_dict
 
-    # Calculate the max value of the "SUM" column
+    # Calcula el máximo de la columna SUM
     max_sum_value = max(sum(props_dict.get(place, 0) for place in config_places) for state, props_dict in states_props.items())
 
     with open(output_file_path, 'w') as output_file:
-        # Write max value at the beginning
+        # Escribe el valor del máximo al inicio del archivo
         output_file.write(f"Max SUM: {max_sum_value}\n")
 
-        # Write header
         output_file.write("S " + " ".join(properties_list + ["SUM"]) + "\n")
 
-        # Write data
         for state, props_dict in states_props.items():
             output_file.write(state)
             sum_value = sum(props_dict.get(place, 0) for place in config_places)
@@ -83,7 +79,7 @@ def main(argv):
                 output_file.write(f" {props_dict.get(prop, 0)}")
             output_file.write(f" {sum_value}\n")
 
-    print(f"Parsing complete. Output written to {output_file_path}")
+    print(f"Resultados guardados en {output_file_path}")
 
 
 if __name__ == "__main__":

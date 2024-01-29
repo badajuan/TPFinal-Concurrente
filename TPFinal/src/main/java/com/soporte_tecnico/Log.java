@@ -5,12 +5,15 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class Log {
 
     private static Log instance;          // Puntero a la instancia Log.
     private PrintWriter fileWriter;       // Writer del log.
+    List<String> transitionList;          // Lista de transiciones registradas.
 
 
     /**
@@ -29,6 +32,8 @@ public class Log {
         } catch (IOException e) {
             e.printStackTrace();
         } 
+
+        transitionList = new ArrayList<>();
     }
 
 
@@ -61,8 +66,16 @@ public class Log {
      * @param transition disparo a registrar.
      */
     public void logTransition(int transition){
-        //System.out.printf("La transicion 'T%d' ha sido disparada exitosamente\n",transition);
         this.logMessage("T"+String.valueOf(transition));
+    }
+
+
+    /**
+     * Registra el disparo de una transicion en la lista de transiciones.
+     * @param transition disparo a registrar.
+     */
+    public void addTransition(int transition){
+        transitionList.add("T"+String.valueOf(transition));
     }
 
 
@@ -73,5 +86,15 @@ public class Log {
         if (fileWriter != null) {
             fileWriter.close();
         }
+    }
+
+
+    /**
+     * Escribe la lista de transiciones en el archivo de log.
+     * Luego cierra el log.
+     */
+    public void writeLog() {
+        fileWriter.print(String.join("", transitionList));
+        closeLog();
     }
 }

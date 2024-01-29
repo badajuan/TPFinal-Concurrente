@@ -7,3 +7,4 @@ TPFinal/logs
 target
 *.class*
 *logs*
+*tmp*

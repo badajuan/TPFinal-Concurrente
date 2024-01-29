@@ -26,7 +26,7 @@ public class Exporter extends Task {
             try {
                 this.monitor.fireTransition(transitions[index]);
                 index = (index + 1) % transitions.length;
-                TimeUnit.MILLISECONDS.sleep(5);
+                TimeUnit.MILLISECONDS.sleep(4);
             } catch (InterruptedException | TaskInterruptedException e) {
                 this.setStop(true);
             }   

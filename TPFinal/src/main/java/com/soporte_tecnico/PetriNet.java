@@ -63,6 +63,7 @@ public class PetriNet {
                                                   new Pair<>(0L,0L), new Pair<>(0L,0L), new Pair<>(0L,0L),       // T12, T13, T14
                                                   new Pair<>(0L,0L), new Pair<>(0L,0L)));                            // T15, T16
 
+                                                          // 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20  
         marking = MatrixUtils.createRealVector(new double[] {0, 1, 0, 3, 0, 1, 0, 1, 0, 2, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1});
         marking.setEntry(0, p0);
 
@@ -78,7 +79,7 @@ public class PetriNet {
         transitionsTimeStamps = new long[incidenceMatrix.getColumnDimension()];
         transitionsStatus = new Status[incidenceMatrix.getColumnDimension()];
 
-        updateEnabledTransitions();
+        updateEnabledTransitions();   
     }
 
 

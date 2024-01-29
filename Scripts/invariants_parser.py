@@ -2,12 +2,20 @@ import getopt
 import sys
 import re
 
-#'\g<2>\g<4>\g<6>\g<8>\g<10>\g<12>\g<14>\g<16>\g<18>'
-#'\g<4>\g<6>\g<9>\g<11>\g<15>\g<17>\g<19>\g<22>\g<24>\g<26>\g<30>\g<32>\g<35>\g<37>\g<39>\g<41>'
+regex = '(T0)(.*?)((T1)(.*?)(T3)(.*?)|(T2)(.*?)(T4)(.*?))((T5)(.*?)(T7)(.*?)(T9)(.*?)|(T6)(.*?)(T8)(.*?)(TA)(.*?))((TB)(.*?)(TD)(.*?)(TF)(.*?)(TG)|(TC)(.*?)(TE)(.*?)(TF)(.*?)(TG))'
+groups = '\g<2>\g<5>\g<7>\g<9>\g<11>\g<14>\g<16>\g<18>\g<20>\g<22>\g<24>\g<27>\g<29>\g<31>\g<34>\g<36>\g<38>'
 
-regex = '(T0)(((.*?)(T1)(.*?)(T3))|((.*?)(T2)(.*?)(T4)))(((.*?)(T5)(.*?)(T7)(.*?)(T9))|((.*?)(T6)(.*?)(T8)(.*?)(T10)))(((.*?)(T11)(.*?)(T13))|((.*?)(T12)(.*?)(T14)))(.*?)(T15)(.*?)(T16)'
 
-def read_text_file(file_path):
+def read_text_file(file_path: str):
+    '''
+    Abre el archivo de log en modo solo lectura.
+
+    Parameters
+    ----------
+    file_path: str
+        Nombre del archivo.
+    '''
+    
     try:
         with open(file_path, 'r') as file:
             content = file.read()
@@ -18,17 +26,30 @@ def read_text_file(file_path):
         print(f"An error occurred: {e}")
         return None
 
+
 def parse_invariants(line: str):
+    '''
+    Parsea el contenido del log, buscando la cantidad de invariantes de transición cumplidos.
+    Al finalizar imprime el resto no perteneciente a ningún invariante y la cantidad de
+    invariantes encontrados.
+
+    Parameters
+    ----------
+    line: str
+        String con transiciones a parsear. Es el contenido del archivo log.
+    '''
+    
     total = 0
     while (True):
-        result, found = re.subn(regex, '\g<4>\g<6>\g<9>\g<11>\g<15>\g<17>\g<19>\g<22>\g<24>\g<26>\g<30>\g<32>\g<35>\g<37>\g<39>\g<41>', line, count=0)
-        print(result + ' ' + str(found))
+        result, found = re.subn(regex, groups, line, count=0)
+        #print(result)
         if found == 0:
             break
         total = total + found
         line = result
+    print(result)
     print(total)
-        
+    
 
 def main(argv):
     file_path = None
@@ -51,6 +72,14 @@ def main(argv):
         sys.exit(2)
 
     content = read_text_file(file_path)
+    
+    content = content.replace("T10","TA")
+    content = content.replace("T11","TB")
+    content = content.replace("T12","TC")
+    content = content.replace("T13","TD")
+    content = content.replace("T14","TE")
+    content = content.replace("T15","TF")
+    content = content.replace("T16","TG")
 
     if content is not None:
         parse_invariants(content)

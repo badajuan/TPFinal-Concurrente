@@ -3,10 +3,30 @@ import re
 from collections import Counter
 import sys
 
-def extract_number(transition):
+def extract_number(transition: str):
+    '''
+    Extrae el número de una transición y lo devuelve como entero.
+
+    Parameters
+    ----------
+    transition: str
+        Transición a procesar.
+    '''
+
     return int(re.search(r'\d+', transition).group())
 
+
 def count_transitions(folder_path):
+    '''
+    Cuenta la ocurrencia de cada transición en todos los archivos de log encontrados en
+    el directorio especificado.
+
+    Parameters
+    ----------
+    folder_path: str
+        Directorio con los archivos de log.
+    '''
+
     transitions_counter = Counter()
     transition_pattern = re.compile(r'T\d+')
     files_read = 0
@@ -30,6 +50,7 @@ def count_transitions(folder_path):
 
     for transition, count in sorted(transitions_counter.items(), key=lambda x: extract_number(x[0])):
         print(f"    {transition}: {count} veces")
+
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:

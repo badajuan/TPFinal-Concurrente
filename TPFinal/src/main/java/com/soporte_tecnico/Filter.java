@@ -26,7 +26,7 @@ public class Filter extends Task {
             try {
                 this.monitor.fireTransition(transitions[index]);
                 index = (index + 1) % transitions.length;
-                TimeUnit.MILLISECONDS.sleep(3);
+                TimeUnit.MILLISECONDS.sleep(2);
             } catch (InterruptedException | TaskInterruptedException e) {
                 this.setStop(true);
             }   

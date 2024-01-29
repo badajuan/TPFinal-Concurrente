@@ -80,6 +80,8 @@ public class Main {
                 e.printStackTrace();
             }
         });
+
+        monitor.getLog().writeLog();
         
         System.out.println("Programa Finalizado");
     }

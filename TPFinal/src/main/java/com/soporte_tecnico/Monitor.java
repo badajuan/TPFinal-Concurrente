@@ -177,7 +177,7 @@ public class Monitor {
             
             // Si k = true, la transición fue disparada.
             if (k) {
-                log.logTransition(transition);                                           // Registra transición disparada.
+                log.addTransition(transition);                                           // Registra transición disparada.
                 counterList.set(transition, counterList.get(transition) + 1.0);          // Incrementa la cuenta de disparos de la transición.
                 int[] enabledTransitions = petriNet.getEnabledTransitions();             // Obtiene listado de transiciones habilitadas por token.
                 int[] blockedList = transitionQueues.getBlockedList();                   // Obtiene listado de colas de condicion con hilos esperando.
@@ -189,7 +189,7 @@ public class Monitor {
                 } catch (TransitionsMismatchException e) {
                     System.err.println(e);
                     System.exit(1);
-                }               
+                }
 
                 boolean allQueuesEmpty = Arrays.stream(enabledBlockedTransitions).allMatch(value -> value == 0);   // true si no hay hilos esperando en transiciones habilitadas.
 
@@ -197,8 +197,7 @@ public class Monitor {
                 if (!allQueuesEmpty) {
                     int transitionToFire = politic.selectTransition(enabledBlockedTransitions, this.counterList);
                     if (transitionToFire == -1) {
-                        mutex.release();
-                        return;
+                        k = false;
                     }
                     transitionQueues.release(transitionToFire);
                     return;
@@ -248,5 +247,10 @@ public class Monitor {
             }
         }
         mutex.release();
+    }
+
+
+    Log getLog() {
+        return this.log;
     }
 }

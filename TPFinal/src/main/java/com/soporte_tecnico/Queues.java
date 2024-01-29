@@ -46,9 +46,8 @@ public class Queues {
      * @param transition numero de la transicion/cola de condición.
      */
     public void acquire(int transition) {
-        synchronized (this) {
-            this.blockedList[transition] = 1;
-        }
+        this.blockedList[transition] = 1;
+
         try {
             queues.get(transition).acquire();
         } catch (InterruptedException e) {
@@ -63,9 +62,6 @@ public class Queues {
      */
     public void release(int transition) {
         queues.get(transition).release();
-
-        synchronized (this) {
-            blockedList[transition] = 0;
-        }
+        blockedList[transition] = 0;
     }
 }
