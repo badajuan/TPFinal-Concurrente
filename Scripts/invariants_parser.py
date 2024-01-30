@@ -1,9 +1,11 @@
+import numpy as np
 import getopt
 import sys
 import re
 
-regex = '(T0)(.*?)((T1)(.*?)(T3)(.*?)|(T2)(.*?)(T4)(.*?))((T5)(.*?)(T7)(.*?)(T9)(.*?)|(T6)(.*?)(T8)(.*?)(TA)(.*?))((TB)(.*?)(TD)(.*?)(TF)(.*?)(TG)|(TC)(.*?)(TE)(.*?)(TF)(.*?)(TG))'
-groups = '\g<2>\g<5>\g<7>\g<9>\g<11>\g<14>\g<16>\g<18>\g<20>\g<22>\g<24>\g<27>\g<29>\g<31>\g<34>\g<36>\g<38>'
+
+regex = '(T0)(.*?)((T1)(.*?)(T3)(.*?)|(T2)(.*?)(T4)(.*?))((T5)(.*?)(T7)(.*?)(T9)(.*?)|(T6)(.*?)(T8)(.*?)(TA)(.*?))((TB)(.*?)(TD)(.*?)|(TC)(.*?)(TE)(.*?))(TF)(.*?)(TG)'
+groups = '\g<2>\g<5>\g<7>\g<9>\g<11>\g<14>\g<16>\g<18>\g<20>\g<22>\g<24>\g<27>\g<29>\g<31>\g<33>\g<35>'
 
 
 def read_text_file(file_path: str):
@@ -25,13 +27,33 @@ def read_text_file(file_path: str):
     except Exception as e:
         print(f"An error occurred: {e}")
         return None
+    
+
+def replace_transitions(content: str) -> str:
+    '''
+    Reemplaza las transiciones mayores o iguales a T10 por transiciones con
+    letras, empezando por TA.
+
+    Parameters
+    ----------
+    content: str
+        String con transiciones.
+    
+    Returns
+    -------
+    content: str
+        String modificado.
+    '''
+
+    for i in np.arange(10,17):
+        content = content.replace('T'+str(i), 'T'+chr(i+55))
+    
+    return content
 
 
-def parse_invariants(line: str, verbose: bool) -> (str, int):
+def parse_invariants(line: str, verbose: bool) -> tuple[str, int]:
     '''
     Parsea el contenido del log, buscando la cantidad de invariantes de transición cumplidos.
-    Al finalizar imprime el resto no perteneciente a ningún invariante y la cantidad de
-    invariantes encontrados.
 
     Parameters
     ----------
@@ -41,9 +63,9 @@ def parse_invariants(line: str, verbose: bool) -> (str, int):
     verbose: bool
         Si es True imprime el excedente de transiciones en cada iteración y la cuenta de invariantes encontrados.
     
-    Return
-    ------
-    result, total: tuple(str, int)
+    Returns
+    -------
+    result, total: tuple[str, int]
         String de transiciones que no pertenecen a un invariante y total de invariantes encontrados.
     '''
     
@@ -55,11 +77,36 @@ def parse_invariants(line: str, verbose: bool) -> (str, int):
         total = total + found
         line = result
         if verbose is True:
-            print('Resto:')
+            print('Transiciones restantes:')
             print(result)
             print('Cuenta de invariantes: ' + str(total) + '\n')
     return result, total
-    
+
+
+def show_results(result: str, count: int):
+    '''
+    Muestra el resultado de buscar los invariantes de transición y la cuenta de
+    invariantes encontrados.
+    Si hay transiciones que no pertenecen a invariantes reporta FAILED.
+    Si no sobran transiciones reporta OK.
+
+    Parameters
+    ----------
+    result: str
+        String con transiciones que no pertenecen a invariantes.
+
+    count: int
+        Cuenta de invariantes encontrados.
+    '''
+
+    print('Invariantes de transición encontrados: ' + str(count))
+    if len(result) != 0:
+        print('Se encuentran transiciones que no pertenecen a ningún invariante.')
+        print('Transiciones: ' + result)
+        print('STATUS: FAILED')
+    else:
+        print('STATUS: OK')
+
 
 def main(argv):
     file_path = None
@@ -69,7 +116,7 @@ def main(argv):
         opts, args = getopt.getopt(argv, "hf:v", ["file=", "verbose"])
     except getopt.GetoptError:
         print("Usage: script.py -f <file_path> [-v|--verbose]")
-        sys.exit(2)
+        sys.exit(1)
 
     for opt, arg in opts:
         if opt == '-h':
@@ -82,27 +129,18 @@ def main(argv):
 
     if file_path is None:
         print("File path is required. Use -f or --file.")
-        sys.exit(2)
+        sys.exit(1)
 
     content = read_text_file(file_path)
     
-    content = content.replace("T10","TA")
-    content = content.replace("T11","TB")
-    content = content.replace("T12","TC")
-    content = content.replace("T13","TD")
-    content = content.replace("T14","TE")
-    content = content.replace("T15","TF")
-    content = content.replace("T16","TG")
-
     if content is not None:
+        content = replace_transitions(content)
         result, total = parse_invariants(content, verbose)
-        print('Invariantes de transición encontrados: ' + str(total))
-        if len(result) != 0:
-            print('Se encuentran transiciones que no pertenecen a ningún invariante.')
-            print('Transiciones: ' + result)
-            print('STATUS: FAILED')
-        else:
-            print('STATUS: OK')
+        show_results(result, total)
+    else:
+        print('Archivo invalido')
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     main(sys.argv[1:])

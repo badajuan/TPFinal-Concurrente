@@ -12,8 +12,8 @@ public class Resizer extends Task {
      * @param transitions transiciones disparadas por la tarea.
      * @param monitor monitor de la ejecución.
      */
-    public Resizer(String name, int[] transitions, Monitor monitor) {
-        super(name, transitions, monitor);
+    public Resizer(String name, int[] transitions, long taskTime, Monitor monitor) {
+        super(name, transitions, taskTime, monitor);
     }
 
 
@@ -26,7 +26,7 @@ public class Resizer extends Task {
             try {
                 this.monitor.fireTransition(transitions[index]);
                 index = (index + 1) % transitions.length;
-                TimeUnit.MILLISECONDS.sleep(3);
+                TimeUnit.MILLISECONDS.sleep(taskTime);
             } catch (InterruptedException | TaskInterruptedException e) {
                 this.setStop(true);
             }   

@@ -14,8 +14,8 @@ public class Importer extends Task{
      * @param transitions transiciones disparadas por la tarea.
      * @param monitor monitor de la ejecucion.
      */
-    public Importer(String name, int[] transitions, Monitor monitor, int maxImages) {
-        super(name, transitions, monitor);
+    public Importer(String name, int[] transitions, long taskTime, Monitor monitor, int maxImages) {
+        super(name, transitions, taskTime, monitor);
         this.maxImages = maxImages;
     }
 
@@ -30,7 +30,7 @@ public class Importer extends Task{
             try {
                 this.monitor.fireTransition(transitions[index]);
                 index = (index + 1) % transitions.length;
-                TimeUnit.MILLISECONDS.sleep(2);
+                TimeUnit.MILLISECONDS.sleep(taskTime);
             } catch (InterruptedException | TaskInterruptedException e) {
                 this.setStop(true);
             }

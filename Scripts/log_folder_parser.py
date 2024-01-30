@@ -16,7 +16,7 @@ def extract_number(transition: str):
     return int(re.search(r'\d+', transition).group())
 
 
-def count_transitions(folder_path):
+def count_transitions(folder_path: str):
     '''
     Cuenta la ocurrencia de cada transición en todos los archivos de log encontrados en
     el directorio especificado.
@@ -45,7 +45,7 @@ def count_transitions(folder_path):
 
     print("Resultados del Analisis:")
     print(f"    Cantidad de Logs Procesados: {files_read}")
-    print(f"    Cantidad de Invariantes Procesados: {total_transitions}")
+    print(f"    Cantidad de Transiciones Procesadas: {total_transitions}")
     print("Transiciones disparadas y sus conteos:")
 
     for transition, count in sorted(transitions_counter.items(), key=lambda x: extract_number(x[0])):

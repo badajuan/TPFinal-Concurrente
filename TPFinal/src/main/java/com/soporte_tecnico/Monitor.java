@@ -197,7 +197,8 @@ public class Monitor {
                 if (!allQueuesEmpty) {
                     int transitionToFire = politic.selectTransition(enabledBlockedTransitions, this.counterList);
                     if (transitionToFire == -1) {
-                        k = false;
+                        mutex.release();
+                        return;
                     }
                     transitionQueues.release(transitionToFire);
                     return;

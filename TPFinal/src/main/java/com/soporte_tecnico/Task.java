@@ -4,6 +4,7 @@ public abstract class Task implements Runnable {
     
     private String name;
     protected boolean stop;
+    protected final long taskTime;
     protected final int[] transitions;
     protected final Monitor monitor;
     
@@ -14,10 +15,11 @@ public abstract class Task implements Runnable {
      * @param transitions transiciones disparadas por la tarea.
      * @param monitor monitor de la ejecución.
      */
-    public Task(String name, int[] transitions, Monitor monitor) {
+    public Task(String name, int[] transitions, long taskTime, Monitor monitor) {
         this.name = name;
         this.stop = false;
         this.transitions = transitions;
+        this.taskTime = taskTime;
         this.monitor = monitor;
     }
 

@@ -65,7 +65,7 @@ public class Log {
      * Registra el disparo de una transicion en el log.
      * @param transition disparo a registrar.
      */
-    public void logTransition(int transition){
+    public void logTransition(int transition) {
         this.logMessage("T"+String.valueOf(transition));
     }
 
@@ -74,7 +74,7 @@ public class Log {
      * Registra el disparo de una transicion en la lista de transiciones.
      * @param transition disparo a registrar.
      */
-    public void addTransition(int transition){
+    public void addTransition(int transition) {
         transitionList.add("T"+String.valueOf(transition));
     }
 

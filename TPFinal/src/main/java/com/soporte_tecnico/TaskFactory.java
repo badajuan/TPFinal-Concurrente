@@ -87,23 +87,23 @@ public class TaskFactory {
      * @param taskType String con el tipo de tarea.
      * @return Hilo que ejecuta la tarea solicitada al factory.
      */
-    public Thread newTask(String taskType, int[] transitions, Monitor monitor, int maxImages) {
+    public Thread newTask(String taskType, int[] transitions, long taskTime, Monitor monitor, int maxImages) {
 
         Task task;
         if (taskType.equals("Importer") && this.importersCounter < this.maxImporters) {
-            task = new Importer(taskType + " " + ++this.importersCounter, transitions, monitor, maxImages);
+            task = new Importer(taskType + " " + ++this.importersCounter, transitions, taskTime, monitor, maxImages);
         }        
         else if (taskType.equals("Loader") && this.loadersCounter < this.maxLoaders) {
-            task = new Loader(taskType + " " + ++this.loadersCounter, transitions, monitor);
+            task = new Loader(taskType + " " + ++this.loadersCounter, transitions, taskTime, monitor);
         }
         else if (taskType.equals("Filter") && this.filtersCounter < this.maxFilters) {
-            task = new Filter(taskType + " " + ++this.filtersCounter, transitions, monitor);
+            task = new Filter(taskType + " " + ++this.filtersCounter, transitions, taskTime, monitor);
         }
         else if (taskType.equals("Resizer") && this.resizersCounter < this.maxResizers) {
-            task = new Resizer(taskType + " " + ++this.resizersCounter, transitions, monitor);
+            task = new Resizer(taskType + " " + ++this.resizersCounter, transitions, taskTime, monitor);
         }
         else if (taskType.equals("Exporter") && this.exportersCounter < this.maxExporters) {
-            task = new Exporter(taskType + " " + ++this.exportersCounter, transitions, monitor);
+            task = new Exporter(taskType + " " + ++this.exportersCounter, transitions, taskTime, monitor);
         }
         else {
             return null;

@@ -12,8 +12,8 @@ public class Filter extends Task {
      * @param transitions transiciones disparadas por la tarea.
      * @param monitor monitor de la ejecucion.
      */
-    public Filter(String name, int[] transitions, Monitor monitor) {
-        super(name, transitions, monitor);
+    public Filter(String name, int[] transitions, long taskTime, Monitor monitor) {
+        super(name, transitions, taskTime, monitor);
     }
 
 
@@ -26,7 +26,7 @@ public class Filter extends Task {
             try {
                 this.monitor.fireTransition(transitions[index]);
                 index = (index + 1) % transitions.length;
-                TimeUnit.MILLISECONDS.sleep(2);
+                TimeUnit.MILLISECONDS.sleep(taskTime);
             } catch (InterruptedException | TaskInterruptedException e) {
                 this.setStop(true);
             }   

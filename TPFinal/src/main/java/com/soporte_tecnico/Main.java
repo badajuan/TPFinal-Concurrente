@@ -40,6 +40,16 @@ public class Main {
         // Tipo de tarea ejecutada por cada hilo.
         final ArrayList<String> taskTypes = new ArrayList<String>(Arrays.asList("Importer", "Loader", "Loader", "Filter", "Filter", "Resizer", "Resizer", "Exporter"));
         
+        // Tiempos de duracion de tareas.
+        final ArrayList<Long> taskTimes = new ArrayList<Long>(Arrays.asList(new Long(1L), 
+                                                                            new Long(1L),
+                                                                            new Long(1L),
+                                                                            new Long(1L),
+                                                                            new Long(1L),
+                                                                            new Long(1L),
+                                                                            new Long(1L),
+                                                                            new Long(1L)));
+
         monitor = parseArgs(args, initialImages);
         // Si llega hasta aqui, se pasaron los argumentos correctos o no se pasaron argumentos (sin prioridad).
 
@@ -49,7 +59,7 @@ public class Main {
 
         // Pide al factory la creación de las tareas.
         for (int i = 0; i < nThreads; i++) {
-            Thread task = taskFactory.newTask(taskTypes.get(i), transitions.get(i), monitor, maxTinvatiants);
+            Thread task = taskFactory.newTask(taskTypes.get(i), transitions.get(i), taskTimes.get(i), monitor, maxTinvatiants);
             task.start();
         }
 
@@ -112,7 +122,7 @@ public class Main {
             }
 
             // Verifica que los argumentos sean correctos.
-            if (segment.length() == 1 && segment.charAt(0) >= 'A' && segment.charAt(0) <= 'F' && (setLoad == 0 || (setLoad >= 0.5 && setLoad <= 1))) {
+            if (segment.length() == 1 && segment.charAt(0) >= 'B' && segment.charAt(0) <= 'G' && (setLoad == 0 || (setLoad >= 0.5 && setLoad <= 1))) {
                 monitor = Monitor.getInstance(initialImages, segment, setLoad);
             }
             else {
@@ -175,8 +185,8 @@ public class Main {
     private static void usage() {
         System.out.println("Uso: java TPFinal.jar timesConfig.txt [Opcion1 Opcion2]");
         System.out.println("timesConfig.txt: Archivo de configuracion de tiempos de transiciones");
-        System.out.println("Opcion1:       Relacion de prioridad: 0 (sin prioridad) o un valor mayor o igual que 0.5 y menor o igual que 1.0");
-        System.out.println("Opcion2:       Segmento a priorizar: B al G");
+        System.out.println("Opcion1:         Relacion de prioridad: 0 (sin prioridad) o un valor mayor o igual que 0.5 y menor o igual que 1.0");
+        System.out.println("Opcion2:         Segmento a priorizar: B al G");
 
         System.exit(1);
     }
