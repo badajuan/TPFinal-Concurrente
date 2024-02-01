@@ -50,27 +50,6 @@ public class Log {
 
 
     /**
-     * Registra un mensaje en el log.
-     * @param message string a registrar en el log.
-     */
-    public void logMessage(String message) {
-        if (fileWriter != null) {
-            fileWriter.printf(message);
-            fileWriter.flush();
-        }
-    }
-
-
-    /**
-     * Registra el disparo de una transicion en el log.
-     * @param transition disparo a registrar.
-     */
-    public void logTransition(int transition) {
-        this.logMessage("T"+String.valueOf(transition));
-    }
-
-
-    /**
      * Registra el disparo de una transicion en la lista de transiciones.
      * @param transition disparo a registrar.
      */

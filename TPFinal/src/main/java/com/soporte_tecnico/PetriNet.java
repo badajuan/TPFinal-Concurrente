@@ -2,6 +2,7 @@ package com.soporte_tecnico;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
@@ -15,7 +16,7 @@ public class PetriNet {
     private final RealMatrix incidenceMatrix;                                // Matriz de incidencia de la red de petri .
     private RealVector marking;                                              // Vector de marcado de la red.
     private int[] enabledByTokens;                                           // Vector de transiciones habilitadas por tokens.
-    private int proseccedTokensCounter;
+    private int processedTokensCounter;
 
     private long[] transitionsTimeStamps;                                    // Marca de tiempo de cuando una transición fue habilitada por tokens.
     private  ArrayList<Pair<Long, Long>> alphaBeta;                          // Par alfa-beta de tiempos de intervalo de cada transicion.
@@ -82,7 +83,7 @@ public class PetriNet {
 
         updateEnabledTransitions();
 
-        proseccedTokensCounter = 0;
+        processedTokensCounter = 0;
     }
 
 
@@ -273,7 +274,7 @@ public class PetriNet {
         }
         if ((marking.getEntry(0) + marking.getEntry(2) + marking.getEntry(4) + marking.getEntry(6) + marking.getEntry(8)
         + marking.getEntry(10) + marking.getEntry(12) + marking.getEntry(13) + marking.getEntry(14) + marking.getEntry(16)
-        + marking.getEntry(17) + marking.getEntry(18) + marking.getEntry(19)) != proseccedTokensCounter) {
+        + marking.getEntry(17) + marking.getEntry(18) + marking.getEntry(19)) != processedTokensCounter) {
             return false;
         }
         return true;
@@ -313,10 +314,10 @@ public class PetriNet {
             // Utiliza la ecuación fundamental para actualizar el estado.
             marking = marking.add(incidenceMatrix.operate(createTransitionVector(transition)));
             if (transition == 0) {
-                proseccedTokensCounter++;
+                processedTokensCounter++;
             }
             if (transition == 16) {
-                proseccedTokensCounter--;
+                processedTokensCounter--;
             }
             if (!holdsPlaceInvariants()) {
                 throw new InvalidMarkingException("Marcado Invalido. No se cumplen los invariantes de plaza.");

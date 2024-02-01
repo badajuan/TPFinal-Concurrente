@@ -16,7 +16,7 @@ public class Main {
         boolean stopProgram = false;                          // Flag de finalizacion de programa.
         final int initialImages = 0;                          // Cantidad de imagenes iniciales en p0.
         final Integer nThreads = 8;                           // Cantidad de hilos.
-        final Integer maxTinvatiants = 200;                   // Invariantes de transicion a cumplir para finalizar el programa.
+        final Integer maxTinvariants = 200;                   // Invariantes de transicion a cumplir para finalizar el programa.
         final Monitor monitor;                                // Monitor.
         final ArrayList<Pair<Long, Long>> transitionTimes;
 
@@ -59,13 +59,13 @@ public class Main {
 
         // Pide al factory la creación de las tareas.
         for (int i = 0; i < nThreads; i++) {
-            Thread task = taskFactory.newTask(taskTypes.get(i), transitions.get(i), taskTimes.get(i), monitor, maxTinvatiants);
+            Thread task = taskFactory.newTask(taskTypes.get(i), transitions.get(i), taskTimes.get(i), monitor, maxTinvariants);
             task.start();
         }
 
         // Ejecuta el programa hasta que se cumpla la cantidad de invariantes establecida.
         while (!stopProgram) {
-            if (monitor.getCounterList().get(16) >= maxTinvatiants) {
+            if (monitor.getCounterList().get(16) >= maxTinvariants) {
                 stopProgram = true;
             }
             try {
@@ -106,35 +106,35 @@ public class Main {
     private static Monitor parseArgs(String[] args, int initialImages) {
         
         Monitor monitor;
-        if (args.length == 1) {
-            // El programa se ejecuta sin argumentos de prioridades y se invoca este constructor de monitor.
-            monitor = Monitor.getInstance(initialImages);
-        }
-        else if (args.length == 3) {
-            float setLoad = 0.0f;        // Primer argumento: Porcentaje de carga extra en el hilo con prioridad.
-            String segment = args[2];    // Seguendo argumento: Hilo a priorizar.
+        switch (args.length) {
+            case 1:
+                // El programa se ejecuta sin argumentos de prioridades y se invoca este constructor de monitor.
+                monitor = Monitor.getInstance(initialImages);
+                break;
+            case 3:
+                float setLoad = 0.0f;        // Primer argumento: Porcentaje de carga extra en el hilo con prioridad.
+                String segment = args[2];    // Segundo argumento: Hilo a priorizar.
             
-            // Si el primer argumento no es un float, termina.
-            try {
-                setLoad = Float.parseFloat(args[1]);
-            } catch (NumberFormatException e) {
-                usage();
-            }
+                // Si el primer argumento no es un float, termina.
+                try {
+                    setLoad = Float.parseFloat(args[1]);
+                } catch (NumberFormatException e) {
+                    usage();
+                }
 
-            // Verifica que los argumentos sean correctos.
-            if (segment.length() == 1 && segment.charAt(0) >= 'B' && segment.charAt(0) <= 'G' && (setLoad == 0 || (setLoad >= 0.5 && setLoad <= 1))) {
-                monitor = Monitor.getInstance(initialImages, segment, setLoad);
-            }
-            else {
+                // Verifica que los argumentos sean correctos.
+                if (segment.length() == 1 && segment.charAt(0) >= 'B' && segment.charAt(0) <= 'G' && (setLoad == 0 || (setLoad >= 0.5 && setLoad <= 1))) {
+                    monitor = Monitor.getInstance(initialImages, segment, setLoad);
+                }
+                else {
+                    monitor = null;
+                    usage();
+                }
+                break;
+            default:
                 monitor = null;
                 usage();
-            }
         }
-        else {
-            monitor = null;
-            usage();
-        }
-
         return monitor;
     }
 
@@ -151,24 +151,24 @@ public class Main {
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;
 
-            // Skip the header line
-            br.readLine();
-
-            while ((line = br.readLine()) != null) {
-                String[] parts = line.split("-");
-                if (parts.length == 2) {
-                    String[] values = parts[1].split(",");
-                    if (values.length == 2) {
-                        Long key = Long.parseLong(values[0].trim());
-                        Long value = Long.parseLong(values[1].trim());
+            while ((line = br.readLine()) != null) { //Leo todo el archivo
+                if(line.equals("[Transiciones]")){
+                    for(int i=0;i<=16;i++){     //Leo los valores de alfa y beta para cada transición
+                        line = br.readLine();
+                        String[] parts = line.split("-");
+                        if (parts.length != 2) {
+                            System.out.println("Formato invalido: " + line);
+                            System.exit(1);
+                        }
+                        String[] values = parts[1].split(",");
+                        if (values.length != 2) {
+                            System.out.println("Formato invalido: " + line);
+                            System.exit(1);
+                        }
+                        long key = Long.parseLong(values[0].trim());
+                        long value = Long.parseLong(values[1].trim());
                         transitionTimes.add(new Pair<>(key, value));
-                    } else {
-                        System.out.println("Formato invalido: " + line);
-                        System.exit(1);
                     }
-                } else {
-                    System.out.println("Formato invalido: " + line);
-                    System.exit(1);
                 }
             }
         } catch (IOException | NumberFormatException e) {
