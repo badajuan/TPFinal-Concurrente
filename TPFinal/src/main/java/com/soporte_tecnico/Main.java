@@ -12,13 +12,16 @@ import org.apache.commons.math3.util.Pair;
 
 public class Main {
     public static void main(String[] args) {
+        if(args.length != 1){
+            System.out.println("ERROR: Cantidad de argumentos incorrecta");
+            usage();
+        }
 
         boolean stopProgram = false;                          // Flag de finalizacion de programa.
         final int initialImages = 0;                          // Cantidad de imagenes iniciales en p0.
         final Integer nThreads = 8;                           // Cantidad de hilos.
         final Integer maxTinvariants = 200;                   // Invariantes de transicion a cumplir para finalizar el programa.
         final Monitor monitor;                                // Monitor.
-        final ArrayList<Pair<Long, Long>> transitionTimes;
 
         // Factory de hilos/tareas.
         final TaskFactory taskFactory = TaskFactory.getInstance(1,
@@ -28,7 +31,7 @@ public class Main {
                                                                 1);
 
         // Lista de transiciones ejecutada por cada hilo.
-        final ArrayList<int[]> transitions = new ArrayList<int[]>(Arrays.asList(new int[]{0},
+        final ArrayList<int[]> transitions = new ArrayList<>(Arrays.asList(new int[]{0},
                                                                                 new int[]{1, 3}, 
                                                                                 new int[]{2, 4},
                                                                                 new int[]{5, 7, 9},
@@ -38,9 +41,9 @@ public class Main {
                                                                                 new int[]{15, 16}));
 
         // Tipo de tarea ejecutada por cada hilo.
-        final ArrayList<String> taskTypes = new ArrayList<String>(Arrays.asList("Importer", "Loader", "Loader", "Filter", "Filter", "Resizer", "Resizer", "Exporter"));
+        final ArrayList<String> taskTypes = new ArrayList<>(Arrays.asList("Importer", "Loader", "Loader", "Filter", "Filter", "Resizer", "Resizer", "Exporter"));
         
-        // Tiempos de duracion de tareas.
+        // Tiempos de duracion de tareas que se inicializan por defecto a 1ms.
         final ArrayList<Long> taskTimes = new ArrayList<>(Arrays.asList(1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L));
 
         // Obtiene los intervalos de tiempo de cada transicion del archivo de configuración y configura la red de petri del monitor.
@@ -52,7 +55,10 @@ public class Main {
             Thread task = taskFactory.newTask(taskTypes.get(i), transitions.get(i), taskTimes.get(i), monitor, maxTinvariants);
             task.start();
         }
+        
+        System.out.printf("\nRdP cargada con exito. La ejecución de la red intentará alcanzar %d invariantes de transición con %d Threads.\n",maxTinvariants,nThreads);
 
+        long startTime = System.nanoTime();
         // Ejecuta el programa hasta que se cumpla la cantidad de invariantes establecida.
         while (!stopProgram) {
             if (monitor.getCounterList().get(16) >= maxTinvariants) {
@@ -64,7 +70,7 @@ public class Main {
                 e.printStackTrace();
             }
         }
-
+        long endTime = System.nanoTime();
         Map<Task, Thread> tasks = taskFactory.getTasks();
 
         // Detiene todos los hilos.
@@ -83,51 +89,9 @@ public class Main {
 
         monitor.getLog().writeLog();
         
-        System.out.println("Programa Finalizado");
+        System.out.printf("\nRdP ejecutada con éxito. Duración de la ejecución de la red: %dms.\n\nCerrando programa...",TimeUnit.NANOSECONDS.toMillis(endTime-startTime));
     }
 
-
-    /**
-     * Parsea los argumentos pasados al programa.
-     * @param args String de argumentos.
-     * @param initialImages cantidades inicial de imagenes (p0).
-     * @return instancia del monitor.
-     */
-    /*
-    private static Monitor parseArgs(String[] args, int initialImages) {
-        
-        Monitor monitor;
-        switch (args.length) {
-            case 1:
-                // El programa se ejecuta sin argumentos de prioridades y se invoca este constructor de monitor.
-                monitor = Monitor.getInstance(initialImages);
-                break;
-            case 3:
-                float setLoad = 0.0f;        // Primer argumento: Porcentaje de carga extra en el hilo con prioridad.
-                String segment = args[2];    // Segundo argumento: Hilo a priorizar.
-            
-                // Si el primer argumento no es un float, termina.
-                try {
-                    setLoad = Float.parseFloat(args[1]);
-                } catch (NumberFormatException e) {
-                    usage();
-                }
-
-                // Verifica que los argumentos sean correctos.
-                if (segment.length() == 1 && segment.charAt(0) >= 'B' && segment.charAt(0) <= 'G' && (setLoad == 0 || (setLoad >= 0.5 && setLoad <= 1))) {
-                    monitor = Monitor.getInstance(initialImages, segment, setLoad);
-                }
-                else {
-                    monitor = null;
-                    usage();
-                }
-                break;
-            default:
-                
-        }
-        return monitor;
-    }
-    */
 
     /**
      * Función que parsea el archivo de configuración con los tiempos de las transiciones temporales.
@@ -136,10 +100,7 @@ public class Main {
      * @return instancia del monitor.
      */
     private static Monitor parseConfigFile(String[] args, int initialImages) {
-        if(args.length!=1){
-            System.out.println("ERROR: Cantidad de argumentos incorrecta");
-            usage();
-        }
+        
         String filePath = args[0];
         Monitor monitor;
         ArrayList<Pair<Long, Long>> transitionTimes = new ArrayList<>(); //Lista con intervalos de tiempo [alfa,beta].
@@ -183,9 +144,6 @@ public class Main {
                             System.out.println("Formato invalido: " + line);
                             System.exit(1);
                         }
-                        for(String part: parts){
-                            System.out.println(part);
-                        }
                         
                         segment = parts[0];   
                         try {// Si el segundo argumento no es un float, termina.
@@ -214,6 +172,7 @@ public class Main {
             monitor = Monitor.getInstance(initialImages);
         } // Chequeo que los parametros de prioridad sean validos
         else if (segment.length() == 1 && segment.charAt(0) >= 'B' && segment.charAt(0) <= 'G' && (setLoad == 0 || (setLoad >= 0.5 && setLoad <= 1))) {
+            System.out.printf("	- Archivo de configuración incluye política de procesamiento prioritario para el segmento %s con una carga del %.0f%% -\n",segment,setLoad*100);
             monitor = Monitor.getInstance(initialImages, segment, setLoad);
         }
         else {    
@@ -238,7 +197,7 @@ public class Main {
         System.out.println("Formato a seguir:");
         System.out.println("    [Transición]: (Número de Transición) - (Tiempo Alfa),(Tiempo Beta)");
         System.out.println("    [Prioridad]: (Segmento a priorizar: B al G) - (Relacion de prioridad: 0 (sin prioridad) o un valor mayor o igual que 0.5 y menor o igual que 1.0)");
-
+        
         System.exit(1);
     }
 }

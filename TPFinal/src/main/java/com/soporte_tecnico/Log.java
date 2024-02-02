@@ -28,7 +28,7 @@ public class Log {
             timeStamp = dateFormat.format(new Date());
             fileName = String.format("logs/log_%s.txt", timeStamp);
             fileWriter = new PrintWriter(new FileWriter(fileName, false));
-            System.out.printf("Log creado bajo el nombre '%s'\n",fileName);
+            System.out.printf("	- Log creado bajo el nombre '%s' -\n",fileName);
         } catch (IOException e) {
             e.printStackTrace();
         } 
