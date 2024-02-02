@@ -193,7 +193,7 @@ public class Main {
     private static void usage() {
         System.out.println("Uso: java TPFinal.jar configFile.txt");
         System.out.printf("configFile.txt: Archivo de configuracion. ");
-        System.out.println("Este archivo debe contener dos headers: [Transiciones] (para indicar los tiempos alfa y beta de la Rdp Temporizada) y [Prioridad] para indicar cuanto priorizar una determinada transición. En caso que este segundo header no se encuentre, se asume RdP no temporizada.");
+        System.out.println("Este archivo debe contener dos headers: [Transiciones] (para indicar los tiempos alfa y beta de la Rdp Temporizada) y [Prioridad] para indicar cuanto priorizar un determinado segmento de la red. En caso que este segundo header no se encuentre, se asume RdP no temporizada.");
         System.out.println("Formato a seguir:");
         System.out.println("    [Transición]: (Número de Transición) - (Tiempo Alfa),(Tiempo Beta)");
         System.out.println("    [Prioridad]: (Segmento a priorizar: B al G) - (Relacion de prioridad: 0 (sin prioridad) o un valor mayor o igual que 0.5 y menor o igual que 1.0)");
