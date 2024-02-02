@@ -12,24 +12,19 @@ import org.apache.commons.math3.util.Pair;
 
 public class Main {
 
-    static int initialImages = 0;                                                                           // Cantidad de imagenes iniciales en p0.
-    static Integer maxTinvariants = 200;                                                                    // Invariantes de transicion a cumplir para finalizar el programa.
-    static boolean priority = false;                                                                        // Flag de prioridad de segmento.
-    static String segment = "";                                                                             // Hilo a priorizar.
-    static float setLoad = 0.0f;                                                                            // Porcentaje de carga extra en el hilo con prioridad.
-    static ArrayList<Pair<Long, Long>> transitionTimes = new ArrayList<>();                                 //Lista con intervalos de tiempo [alfa,beta].
-   // static ArrayList<Long> taskTimes = new ArrayList<>(Arrays.asList(1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L)); // Tiempos de duracion de tareas.
-    static ArrayList<Long> taskTimes = new ArrayList<>(); // Tiempos de duracion de tareas.
+    static int initialImages = 0;                                             // Cantidad de imagenes iniciales en p0.
+    static Integer maxTinvariants = 200;                                      // Invariantes de transicion a cumplir para finalizar el programa.
+    static boolean priority = false;                                          // Flag de prioridad de segmento.
+    static String segment = "";                                               // Hilo a priorizar.
+    static float setLoad = 0.0f;                                              // Porcentaje de carga extra en el hilo con prioridad.
+    static ArrayList<Pair<Long, Long>> transitionTimes = new ArrayList<>();   //Lista con intervalos de tiempo [alfa,beta].
+    static ArrayList<Long> taskTimes = new ArrayList<>();                     // Tiempos de duracion de tareas.
 
     public static void main(String[] args) {
-        if(args.length != 1){
-            System.out.println("ERROR: Cantidad de argumentos incorrecta");
-            usage();
-        }
-
-        boolean stopProgram = false;                          // Flag de finalizacion de programa.                          
-        final Integer nThreads = 8;                           // Cantidad de hilos.                  
-        final Monitor monitor;                                // Monitor.
+             
+        final Integer nThreads = 8;                                           // Cantidad de hilos.                  
+        final Monitor monitor;                                                // Monitor.
+        boolean stopProgram = false;                                          // Flag de finalizacion de programa. 
         
         // Factory de hilos/tareas.
         final TaskFactory taskFactory = TaskFactory.getInstance(1, 2,  2, 2, 1);
@@ -47,8 +42,6 @@ public class Main {
         // Tipo de tarea ejecutada por cada hilo.
         final ArrayList<String> taskTypes = new ArrayList<>(Arrays.asList("Importer", "Loader", "Loader", "Filter", "Filter", "Resizer", "Resizer", "Exporter"));
         
-        
-
         // Obtiene los intervalos de tiempo de cada transicion del archivo de configuración y configura la red de petri del monitor.
         if(args.length!=1){
             System.out.println("ERROR: Cantidad de argumentos incorrecta");
@@ -253,11 +246,18 @@ public class Main {
      */
     private static void usage() {
         System.out.println("Uso: java TPFinal.jar configFile.txt");
-        System.out.printf("configFile.txt: Archivo de configuracion. ");
-        System.out.println("Este archivo debe contener dos headers: [Transiciones] (para indicar los tiempos alfa y beta de la Rdp Temporizada) y [Prioridad] para indicar cuanto priorizar un determinado segmento de la red. En caso que este segundo header no se encuentre, se asume RdP no temporizada.");
+        System.out.printf("configFile.txt: Archivo de configuracion.");
+        System.out.println("Este archivo debe contener las secciones:");
+        System.out.println("    [Parametros]    para indicar marcado inicial y cantidad máxima de invariantes de transición a ejecutar.");
+        System.out.println("    [TiempoTareas]  para indicar el tiempo de sleep de cada hilo.");
+        System.out.println("    [Transiciones]  para indicar los tiempos alfa y beta de la Rdp Temporizada.");
+        System.out.println("    [Prioridad]     para indicar cuanto priorizar un determinado segmento de la red.");
+        System.out.println("");
         System.out.println("Formato a seguir:");
-        System.out.println("    [Transición]: (Número de Transición) - (Tiempo Alfa),(Tiempo Beta)");
-        System.out.println("    [Prioridad]: (Segmento a priorizar: B al G) - (Relacion de prioridad: 0 (sin prioridad) o un valor mayor o igual que 0.5 y menor o igual que 1.0)");
+        System.out.println("    [Parametros]  : (tokens)=(marcado inicial en p0) y (maxTinvariantes)=(Máxima cantidad de invariantes)");
+        System.out.println("    [Transición]  : (Número de Transición)=(Tiempo Alfa),(Tiempo Beta)");
+        System.out.println("    [TiempoTareas]: (Segmento)=(Tiempo de sleep)");
+        System.out.println("    [Prioridad]   : (Segmento)=(segmento a priorizar: B al G) y (carga)=(valor: 0 (sin prioridad) o un valor mayor o igual que 0.5 y menor o igual que 1.0)");
         
         System.exit(1);
     }
