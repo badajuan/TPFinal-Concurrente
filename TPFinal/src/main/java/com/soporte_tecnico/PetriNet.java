@@ -83,7 +83,7 @@ public class PetriNet {
 
         updateEnabledTransitions();
 
-        processedTokensCounter = 0;
+        processedTokensCounter = p0;
     }
 
 
