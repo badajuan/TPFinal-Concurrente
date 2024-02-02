@@ -11,24 +11,26 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.math3.util.Pair;
 
 public class Main {
+
+    static int initialImages = 0;                                             // Cantidad de imagenes iniciales en p0.
+    static Integer maxTinvariants = 200;                                      // Invariantes de transicion a cumplir para finalizar el programa.
+    static boolean priority = false;                                          // Flag de prioridad de segmento.
+    static String segment = "";                                               // Hilo a priorizar.
+    static float setLoad = 0.0f;                                              // Porcentaje de carga extra en el hilo con prioridad.
+    static ArrayList<Pair<Long, Long>> transitionTimes = new ArrayList<>();   //Lista con intervalos de tiempo [alfa,beta].
+    static ArrayList<Long> taskTimes = new ArrayList<>();                     // Tiempos de duracion de tareas.
+
     public static void main(String[] args) {
-
-        boolean stopProgram = false;                          // Flag de finalizacion de programa.
-        final int initialImages = 0;                          // Cantidad de imagenes iniciales en p0.
-        final Integer nThreads = 8;                           // Cantidad de hilos.
-        final Integer maxTinvariants = 200;                   // Invariantes de transicion a cumplir para finalizar el programa.
-        final Monitor monitor;                                // Monitor.
-        final ArrayList<Pair<Long, Long>> transitionTimes;
-
+             
+        final Integer nThreads = 8;                                           // Cantidad de hilos.                  
+        final Monitor monitor;                                                // Monitor.
+        boolean stopProgram = false;                                          // Flag de finalizacion de programa. 
+        
         // Factory de hilos/tareas.
-        final TaskFactory taskFactory = TaskFactory.getInstance(1,
-                                                                2, 
-                                                                2, 
-                                                                2, 
-                                                                1);
+        final TaskFactory taskFactory = TaskFactory.getInstance(1, 2,  2, 2, 1);
 
         // Lista de transiciones ejecutada por cada hilo.
-        final ArrayList<int[]> transitions = new ArrayList<int[]>(Arrays.asList(new int[]{0},
+        final ArrayList<int[]> transitions = new ArrayList<>(Arrays.asList(new int[]{0},
                                                                                 new int[]{1, 3}, 
                                                                                 new int[]{2, 4},
                                                                                 new int[]{5, 7, 9},
@@ -38,31 +40,42 @@ public class Main {
                                                                                 new int[]{15, 16}));
 
         // Tipo de tarea ejecutada por cada hilo.
-        final ArrayList<String> taskTypes = new ArrayList<String>(Arrays.asList("Importer", "Loader", "Loader", "Filter", "Filter", "Resizer", "Resizer", "Exporter"));
+        final ArrayList<String> taskTypes = new ArrayList<>(Arrays.asList("Importer", "Loader", "Loader", "Filter", "Filter", "Resizer", "Resizer", "Exporter"));
         
-        // Tiempos de duracion de tareas.
-        final ArrayList<Long> taskTimes = new ArrayList<Long>(Arrays.asList(new Long(1L), 
-                                                                            new Long(1L),
-                                                                            new Long(1L),
-                                                                            new Long(1L),
-                                                                            new Long(1L),
-                                                                            new Long(1L),
-                                                                            new Long(1L),
-                                                                            new Long(1L)));
-
-        monitor = parseArgs(args, initialImages);
-        // Si llega hasta aqui, se pasaron los argumentos correctos o no se pasaron argumentos (sin prioridad).
-
         // Obtiene los intervalos de tiempo de cada transicion del archivo de configuración y configura la red de petri del monitor.
-        transitionTimes = parseConfigFile(args[0]);
+        if(args.length!=1){
+            System.out.println("ERROR: Cantidad de argumentos incorrecta");
+            usage();
+        }
+        
+        parseConfigFile(args);
+        
+        if(!priority){ //No había parametros de prioridad en el archivo de configuración
+            // El programa se ejecuta sin argumentos de prioridades y se invoca este constructor de monitor.
+            monitor = Monitor.getInstance(initialImages);
+        } // Chequeo que los parametros de prioridad sean validos
+        else if (segment.length() == 1 && segment.charAt(0) >= 'B' && segment.charAt(0) <= 'G' && (setLoad == 0 || (setLoad >= 0.5 && setLoad <= 1))) {
+            monitor = Monitor.getInstance(initialImages, segment, setLoad);
+        }
+        else {    
+            monitor = null;
+            System.out.printf("'%s' - '%s'",segment,String.valueOf(setLoad));
+            System.out.println("ERROR: Parametros invalidos en el archivo de configuración invalidos");
+            usage();
+        }
+
         monitor.setTransitionsTime(transitionTimes);
+
 
         // Pide al factory la creación de las tareas.
         for (int i = 0; i < nThreads; i++) {
             Thread task = taskFactory.newTask(taskTypes.get(i), transitions.get(i), taskTimes.get(i), monitor, maxTinvariants);
             task.start();
         }
+        
+        System.out.printf("\nRdP cargada con exito. La ejecución de la red intentará alcanzar %d invariantes de transición con %d Threads.\n",maxTinvariants,nThreads);
 
+        long startTime = System.nanoTime();
         // Ejecuta el programa hasta que se cumpla la cantidad de invariantes establecida.
         while (!stopProgram) {
             if (monitor.getCounterList().get(16) >= maxTinvariants) {
@@ -74,7 +87,7 @@ public class Main {
                 e.printStackTrace();
             }
         }
-
+        long endTime = System.nanoTime();
         Map<Task, Thread> tasks = taskFactory.getTasks();
 
         // Detiene todos los hilos.
@@ -93,89 +106,138 @@ public class Main {
 
         monitor.getLog().writeLog();
         
-        System.out.println("Programa Finalizado");
-    }
-
-
-    /**
-     * Parsea los argumentos pasados al programa.
-     * @param args String de argumentos.
-     * @param initialImages cantidades inicial de imagenes (p0).
-     * @return instancia del monitor.
-     */
-    private static Monitor parseArgs(String[] args, int initialImages) {
-        
-        Monitor monitor;
-        switch (args.length) {
-            case 1:
-                // El programa se ejecuta sin argumentos de prioridades y se invoca este constructor de monitor.
-                monitor = Monitor.getInstance(initialImages);
-                break;
-            case 3:
-                float setLoad = 0.0f;        // Primer argumento: Porcentaje de carga extra en el hilo con prioridad.
-                String segment = args[2];    // Segundo argumento: Hilo a priorizar.
-            
-                // Si el primer argumento no es un float, termina.
-                try {
-                    setLoad = Float.parseFloat(args[1]);
-                } catch (NumberFormatException e) {
-                    usage();
-                }
-
-                // Verifica que los argumentos sean correctos.
-                if (segment.length() == 1 && segment.charAt(0) >= 'B' && segment.charAt(0) <= 'G' && (setLoad == 0 || (setLoad >= 0.5 && setLoad <= 1))) {
-                    monitor = Monitor.getInstance(initialImages, segment, setLoad);
-                }
-                else {
-                    monitor = null;
-                    usage();
-                }
-                break;
-            default:
-                monitor = null;
-                usage();
-        }
-        return monitor;
+        System.out.printf("\nRdP ejecutada con éxito. Duración de la ejecución de la red: %dms.\n\nCerrando programa...",TimeUnit.NANOSECONDS.toMillis(endTime-startTime));
     }
 
 
     /**
      * Función que parsea el archivo de configuración con los tiempos de las transiciones temporales.
-     * @param filePath path del archivo de configuración.
-     * @return Lista con intervalos de tiempo [alfa,beta].
+     * @param args String de argumentos.
      */
-    private static ArrayList<Pair<Long, Long>> parseConfigFile(String filePath) {
+    private static void parseConfigFile(String[] args) {
+        String filePath = args[0]; 
+        boolean temporized = false;
         
-        ArrayList<Pair<Long, Long>> transitionTimes = new ArrayList<>();
-
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;
 
             while ((line = br.readLine()) != null) { //Leo todo el archivo
-                if(line.equals("[Transiciones]")){
-                    for(int i=0;i<=16;i++){     //Leo los valores de alfa y beta para cada transición
+                switch (line) {
+                    case "[Parametros]":
+                        for (int i = 0; i < 2; i++) {
+                            line = br.readLine();
+                            String[] keyValue = line.split("=");
+                            if (keyValue.length != 2) {
+                                System.out.println("Formato invalido: " + line);
+                                System.exit(1);
+                            }
+                            if ("tokens".equals(keyValue[0])) {
+                                try {
+                                    initialImages = Integer.parseInt(keyValue[1]);
+                                } catch (NumberFormatException e) {
+                                    System.out.println("Formato invalido: " + line);
+                                    System.exit(1);
+                                }
+                            }
+                            if ("maxTinvariantes".equals(keyValue[0])) {
+                                try {
+                                    maxTinvariants = Integer.parseInt(keyValue[1]);
+                                } catch (NumberFormatException e) {
+                                    System.out.println("Formato invalido: " + line);
+                                    System.exit(1);
+                                }
+                            }                            
+                        }
+                        break;
+                    case "[TiempoTareas]":
+                    Long sleepTime = 1L;
+                    for (int i = 0; i < 8; i++) {
                         line = br.readLine();
-                        String[] parts = line.split("-");
-                        if (parts.length != 2) {
+                        String[] keyValue = line.split("=");
+                        if (keyValue.length != 2) {
                             System.out.println("Formato invalido: " + line);
                             System.exit(1);
                         }
-                        String[] values = parts[1].split(",");
-                        if (values.length != 2) {
+                        if (!("A".equals(keyValue[0]) || "B".equals(keyValue[0]) || "C".equals(keyValue[0]) || "D".equals(keyValue[0]) || 
+                        "E".equals(keyValue[0]) || "F".equals(keyValue[0]) || "G".equals(keyValue[0]) || "H".equals(keyValue[0]))) {
                             System.out.println("Formato invalido: " + line);
                             System.exit(1);
                         }
-                        long key = Long.parseLong(values[0].trim());
-                        long value = Long.parseLong(values[1].trim());
-                        transitionTimes.add(new Pair<>(key, value));
+                        try {
+                            sleepTime = Long.parseLong(keyValue[1]);
+                        } catch (NumberFormatException e) {
+                            System.out.println("Formato invalido: " + line);
+                            System.exit(1);
+                        }
+                        taskTimes.add(sleepTime);
+
                     }
+                    break;
+                    case "[Transiciones]":
+                        temporized = true;
+                        for(int i=0;i<=16;i++){     //Leo los valores de alfa y beta para cada transición
+                            line = br.readLine();
+                            String[] parts = line.split("=");
+                            if (parts.length != 2) {
+                                System.out.println("Formato invalido: " + line);
+                                System.exit(1);
+                            }
+                            String[] values = parts[1].split(",");
+                            if (values.length != 2) {
+                                System.out.println("Formato invalido: " + line);
+                                System.exit(1);
+                            }
+                            long key = Long.parseLong(values[0].trim());
+                            long value = Long.parseLong(values[1].trim());
+                            transitionTimes.add(new Pair<>(key, value));
+                        }
+                        break;
+                    case "[Prioridad]":
+                        for (int i = 0; i < 2; i++) {
+                            line = br.readLine();
+                            String[] keyValue = line.split("=");
+                            if (keyValue.length != 2) {
+                                System.out.println("Formato invalido: " + line);
+                                System.exit(1);
+                            }
+                            if ("segmento".equals(keyValue[0])) {
+                                if ("none".equals(keyValue[1])) {
+                                    priority = false;
+                                }
+                                else if ("B".equals(keyValue[1]) || "C".equals(keyValue[1]) || "D".equals(keyValue[1]) || 
+                                "E".equals(keyValue[1]) || "F".equals(keyValue[1]) || "G".equals(keyValue[1])) {
+                                    priority = true;
+                                    segment = keyValue[1];   
+                                }
+                                else {
+                                    System.out.println("Formato invalido: " + line);
+                                    System.exit(1);
+                                }
+                            }
+                            if ("carga".equals(keyValue[0])) {
+                                try {// Si el segundo argumento no es un float, termina.
+                                    setLoad = Float.parseFloat(keyValue[1]);        
+                                } catch (NumberFormatException e) {
+                                    System.out.println("ERROR: Parametros invalidos en el archivo de configuración");
+                                    usage();
+                                }
+                            }
+                        }
+                        break;
+                    default:
+                        System.out.println("Formato invalido: " + line);
+                        System.exit(1);
                 }
             }
-        } catch (IOException | NumberFormatException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
-        return transitionTimes;
+        if(!temporized){ //No se encontraron los parametros de temporización de la red
+            System.out.println("ERROR: Parametros en el archivo de configuración insuficientes");
+            usage();
+        }
+        //return monitor;
     }
 
     
@@ -183,11 +245,20 @@ public class Main {
      * Funcion que imprime como ejecutar el programa con argumentos.
      */
     private static void usage() {
-        System.out.println("Uso: java TPFinal.jar timesConfig.txt [Opcion1 Opcion2]");
-        System.out.println("timesConfig.txt: Archivo de configuracion de tiempos de transiciones");
-        System.out.println("Opcion1:         Relacion de prioridad: 0 (sin prioridad) o un valor mayor o igual que 0.5 y menor o igual que 1.0");
-        System.out.println("Opcion2:         Segmento a priorizar: B al G");
-
+        System.out.println("Uso: java TPFinal.jar configFile.txt");
+        System.out.printf("configFile.txt: Archivo de configuracion.");
+        System.out.println("Este archivo debe contener las secciones:");
+        System.out.println("    [Parametros]    para indicar marcado inicial y cantidad máxima de invariantes de transición a ejecutar.");
+        System.out.println("    [TiempoTareas]  para indicar el tiempo de sleep de cada hilo.");
+        System.out.println("    [Transiciones]  para indicar los tiempos alfa y beta de la Rdp Temporizada.");
+        System.out.println("    [Prioridad]     para indicar cuanto priorizar un determinado segmento de la red.");
+        System.out.println("");
+        System.out.println("Formato a seguir:");
+        System.out.println("    [Parametros]  : (tokens)=(marcado inicial en p0) y (maxTinvariantes)=(Máxima cantidad de invariantes)");
+        System.out.println("    [Transición]  : (Número de Transición)=(Tiempo Alfa),(Tiempo Beta)");
+        System.out.println("    [TiempoTareas]: (Segmento)=(Tiempo de sleep)");
+        System.out.println("    [Prioridad]   : (Segmento)=(segmento a priorizar: B al G) y (carga)=(valor: 0 (sin prioridad) o un valor mayor o igual que 0.5 y menor o igual que 1.0)");
+        
         System.exit(1);
     }
 }
