@@ -55,11 +55,11 @@ public class Main {
             monitor = Monitor.getInstance(initialImages);
         } // Chequeo que los parametros de prioridad sean validos
         else if (segment.length() == 1 && segment.charAt(0) >= 'B' && segment.charAt(0) <= 'G' && (setLoad == 0 || (setLoad >= 0.5 && setLoad <= 1))) {
+            System.out.printf("	- Archivo de configuración incluye política de procesamiento prioritario para el segmento %s con una carga del %.0f%% -\n",segment,setLoad*100);
             monitor = Monitor.getInstance(initialImages, segment, setLoad);
         }
         else {    
             monitor = null;
-            System.out.printf("'%s' - '%s'",segment,String.valueOf(setLoad));
             System.out.println("ERROR: Parametros invalidos en el archivo de configuración invalidos");
             usage();
         }
@@ -123,7 +123,7 @@ public class Main {
 
             while ((line = br.readLine()) != null) { //Leo todo el archivo
                 switch (line) {
-                    case "[Parametros]":
+                    case "[Parametros]":        //Sobreescribe los parametros iniciales
                         for (int i = 0; i < 2; i++) {
                             line = br.readLine();
                             String[] keyValue = line.split("=");
@@ -150,8 +150,8 @@ public class Main {
                         }
                         break;
                     case "[TiempoTareas]":
-                    Long sleepTime = 1L;
                     for (int i = 0; i < 8; i++) {
+                        Long sleepTime = 1L;
                         line = br.readLine();
                         String[] keyValue = line.split("=");
                         if (keyValue.length != 2) {
@@ -170,7 +170,6 @@ public class Main {
                             System.exit(1);
                         }
                         taskTimes.add(sleepTime);
-
                     }
                     break;
                     case "[Transiciones]":
@@ -237,7 +236,6 @@ public class Main {
             System.out.println("ERROR: Parametros en el archivo de configuración insuficientes");
             usage();
         }
-        //return monitor;
     }
 
     
