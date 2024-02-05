@@ -1,0 +1,17 @@
+/home/felipe/repos/TPFinal-Concurrente/TPFinal/src/main/java/com/soporte_tecnico/Main.java
+/home/felipe/repos/TPFinal-Concurrente/TPFinal/src/main/java/com/soporte_tecnico/Exporter.java
+/home/felipe/repos/TPFinal-Concurrente/TPFinal/src/main/java/com/soporte_tecnico/Log.java
+/home/felipe/repos/TPFinal-Concurrente/TPFinal/src/main/java/com/soporte_tecnico/exceptions/TaskInterruptedException.java
+/home/felipe/repos/TPFinal-Concurrente/TPFinal/src/main/java/com/soporte_tecnico/Queues.java
+/home/felipe/repos/TPFinal-Concurrente/TPFinal/src/main/java/com/soporte_tecnico/Filter.java
+/home/felipe/repos/TPFinal-Concurrente/TPFinal/src/main/java/com/soporte_tecnico/Importer.java
+/home/felipe/repos/TPFinal-Concurrente/TPFinal/src/main/java/com/soporte_tecnico/PetriNet.java
+/home/felipe/repos/TPFinal-Concurrente/TPFinal/src/main/java/com/soporte_tecnico/exceptions/TransitionTimedOutException.java
+/home/felipe/repos/TPFinal-Concurrente/TPFinal/src/main/java/com/soporte_tecnico/TaskFactory.java
+/home/felipe/repos/TPFinal-Concurrente/TPFinal/src/main/java/com/soporte_tecnico/Politic.java
+/home/felipe/repos/TPFinal-Concurrente/TPFinal/src/main/java/com/soporte_tecnico/exceptions/TransitionsMismatchException.java
+/home/felipe/repos/TPFinal-Concurrente/TPFinal/src/main/java/com/soporte_tecnico/exceptions/InvalidMarkingException.java
+/home/felipe/repos/TPFinal-Concurrente/TPFinal/src/main/java/com/soporte_tecnico/Resizer.java
+/home/felipe/repos/TPFinal-Concurrente/TPFinal/src/main/java/com/soporte_tecnico/Loader.java
+/home/felipe/repos/TPFinal-Concurrente/TPFinal/src/main/java/com/soporte_tecnico/Monitor.java
+/home/felipe/repos/TPFinal-Concurrente/TPFinal/src/main/java/com/soporte_tecnico/Task.java
