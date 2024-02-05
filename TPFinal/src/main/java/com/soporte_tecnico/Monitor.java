@@ -46,9 +46,8 @@ public class Monitor {
      * Constructor. Privado para garantizar singleton. Implementa politica donde 
      * se da prioridad a un segmento sobre otro.
      * @param p0
-     * @param mode modo balanceado o prioridad de segmento.
      * @param segment segmendo a priorizar.
-     * @param laod carga del segmento a priorizar.
+     * @param load carga del segmento a priorizar.
      */
     private Monitor(int p0, String segment, double load) {
         this.mutex = new Semaphore(1);
@@ -85,9 +84,8 @@ public class Monitor {
     /**
      * Devuelve una unica instancia de clase Monitor. Si no existe instancia, crea una.
      * @param p0 Cantidad inicial de tokens en la plaza p0 de la red de petri.
-     * @param mode modo balanceado o prioridad de segmento.
      * @param segment segmendo a priorizar.
-     * @param laod carga del segmento a priorizar.
+     * @param load carga del segmento a priorizar.
      * @return puntero a la instancia de Monitor.
      */
     public static Monitor getInstance(int p0, String segment, double load) {
@@ -152,7 +150,7 @@ public class Monitor {
 
 
     /**
-     * Toma la desicion sobre que transición disparar y que hilo debe realizar su tarea.
+     * Toma la decision sobre que transición disparar y que hilo debe realizar su tarea.
      * Implementa una politica Signal and Continue. 
      * @param transition transicion que un hilo solicita disparar.
      */
@@ -223,7 +221,7 @@ public class Monitor {
                     
                     k = true;    
                 }
-                // El hilo intentó disparar antes de que se cumpla el tiepo alfa.
+                // El hilo intentó disparar antes de que se cumpla el tiempo alfa.
                 else if (petriNet.getTransitionStatus(transition) == Status.BEFORE_WINDOW) {
                     mutex.release();
                     long time = System.currentTimeMillis();

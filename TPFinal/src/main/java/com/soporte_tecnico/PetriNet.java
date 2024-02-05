@@ -197,7 +197,7 @@ public class PetriNet {
             return false;
         }
         // Si está habilitada por marcado, hay que verificar si está habilitada por tiempo.
-        else if (enabledByTokens[transition] == 1){
+        if (enabledByTokens[transition] == 1){
             // Si alfa y beta son 0, no es una transición temporal.
             if (alphaBeta.get(transition).getKey() == 0L && alphaBeta.get(transition).getValue() == 0L) {
                 transitionsStatus[transition] = Status.ENABLED;
@@ -212,16 +212,13 @@ public class PetriNet {
                 return false;
             }
             // Verifica si pasó el tiempo de habilitación.
-            else if (time > (transitionsTimeStamps[transition] + alphaBeta.get(transition).getValue())) {
+            if (time > (transitionsTimeStamps[transition] + alphaBeta.get(transition).getValue())) {
                 transitionsStatus[transition] = Status.AFTER_WINDOW;
                 return false;
             }
             // El disparo está dentro del intervalo de habilitación y la transición se dispara.
-            else {
-                transitionsStatus[transition] = Status.ENABLED;
-                return true;
-            }
-
+            transitionsStatus[transition] = Status.ENABLED;
+            return true;
         }
         else {
             throw new RuntimeException("Vector enabledByToken invalido. enabledByToken[" + transition + "] = " + enabledByTokens[transition]);

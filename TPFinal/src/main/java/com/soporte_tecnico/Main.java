@@ -53,7 +53,7 @@ public class Main {
         if(!priority){ //No había parametros de prioridad en el archivo de configuración
             // El programa se ejecuta sin argumentos de prioridades y se invoca este constructor de monitor.
             monitor = Monitor.getInstance(initialImages);
-        } // Chequeo que los parametros de prioridad sean validos
+        } // Chequea que los parametros de prioridad sean validos
         else if (segment.length() == 1 && segment.charAt(0) >= 'B' && segment.charAt(0) <= 'G' && (setLoad == 0 || (setLoad >= 0.5 && setLoad <= 1))) {
             System.out.printf("	- Archivo de configuración incluye política de procesamiento prioritario para el segmento %s con una carga del %.0f%% -\n",segment,setLoad*100);
             monitor = Monitor.getInstance(initialImages, segment, setLoad);
@@ -243,8 +243,8 @@ public class Main {
      * Funcion que imprime como ejecutar el programa con argumentos.
      */
     private static void usage() {
-        System.out.println("Uso: java TPFinal.jar configFile.txt");
-        System.out.printf("configFile.txt: Archivo de configuracion.");
+        System.out.println("Uso: java TPFinal.jar configFile.ini");
+        System.out.printf("configFile.ini: Archivo de configuracion.");
         System.out.println("Este archivo debe contener las secciones:");
         System.out.println("    [Parametros]    para indicar marcado inicial y cantidad máxima de invariantes de transición a ejecutar.");
         System.out.println("    [TiempoTareas]  para indicar el tiempo de sleep de cada hilo.");
