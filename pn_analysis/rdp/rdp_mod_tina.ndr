@@ -1,0 +1,96 @@
+p 240.0 30.0 P0 1 s
+p 85.0 90.0 P1 1 s
+p 610.0 630.0 P14 0 s
+p 620.0 390.0 P15 1 s
+p 560.0 370.0 P16 0 s
+p 680.0 370.0 P17 0 s
+p 620.0 270.0 P18 0 s
+p 620.0 150.0 P19 0 s
+p 730.0 150.0 P20 1 s
+p 125.0 150.0 P2 0 s
+p 240.0 150.0 P3 3 s
+p 350.0 150.0 P4 0 s
+p 400.0 90.0 P5 1 s
+p 240.0 240.0 P6 0 s
+t 175.0 90.0 T1 s 0 w n {<F,I,(!none)>} w
+t 680.0 450.0 T12 s 0 w n {<F,I,(!none)>} w
+t 560.0 310.0 T13 s 0 w n {<F,I,(!none)>} w
+t 680.0 310.0 T14 s 0 w n {<F,I,(!none)>} w
+t 620.0 210.0 T15 s 0 w n {<F,I,(!none)>} w
+t 310.0 90.0 T2 s 0 w n {<F,I,(!none)>} w
+t 125.0 210.0 T3 s 0 w n {<F,I,(!none)>} w
+t 350.0 210.0 T4 s 0 w n {<F,I,(!none)>} w
+t 155.0 270.0 T5 s 0 w n {<F,I,(!none)>} w
+t 320.0 270.0 T6 s 0 w n {<F,I,(!none)>} w
+t 560.0 450.0 T11 s 0 w n {<F,I,(!none)>} w
+p 30.0 270.0 P7 1 s
+p 460.0 270.0 P11 1 s
+p 240.0 480.0 P9 2 s
+t 155.0 460.0 T7 0 w n
+p 155.0 375.0 P8 0 s
+p 320.0 375.0 P10 0 s
+t 325.0 460.0 T8 0 w n
+p 155.0 535.0 P12 0 n
+t 155.0 630.0 T9 s 0 w n {<F,I,(!none)>} w
+t 330.0 630.0 T10 s 0 w n {<F,I,(!none)>} w
+p 325.0 540.0 P13 0 n
+t 620.0 70.0 T16 s 0 w n {<F,I,(!none)>} w
+e P13 T10 1 n
+e T8 P13 1 n
+e P10 T8 1 n
+e P12 T9 1 n
+e T7 P12 1 n
+e P8 T7 1 n
+e T16 P0 1 n
+e P6 T6 1 n
+e P0 T1 1 n
+e P0 T2 1 n
+e T1 P2 1 n
+e T2 P4 1 n
+e P5 T2 1 n
+e P1 T1 1 n
+e T3 P1 1 n
+e P2 T3 1 n
+e T3 P3 1 n
+e P3 T1 1 n
+e P3 T2 1 n
+e T4 P3 1 n
+e P4 T4 1 n
+e T4 P5 1 n
+e T3 P6 1 n
+e T4 P6 1 n
+e P6 T5 1 n
+e T5 P8 1 n
+e T6 P10 1 n
+e P9 T5 1 n
+e P9 T6 1 n
+e T9 P9 1 n
+e T10 P9 1 n
+e T10 P11 1 n
+e P11 T6 1 n
+e T9 P7 1 n
+e P7 T5 1 n
+e T10 P14 1 n
+e T9 P14 1 n
+e P14 T11 1 n
+e P14 T12 1 n
+e P15 T11 1 n
+e P15 T12 1 n
+e T11 P16 1 n
+e P16 T13 1 n
+e T12 P17 1 n
+e P17 T14 1 n
+e T13 P15 1 n
+e T14 P15 1 n
+e T13 P18 1 n
+e T14 P18 1 n
+e P18 T15 1 n
+e T15 P19 1 n
+e P20 T15 1 n
+e P19 T16 1 n
+e T16 P20 1 n
+e T16 P3 1 n
+e P3 T15 1 n
+h rdp_v1_mod_tina
+
+
