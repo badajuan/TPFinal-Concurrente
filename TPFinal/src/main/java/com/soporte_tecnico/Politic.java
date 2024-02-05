@@ -45,9 +45,8 @@ public class Politic {
     /**
      * Constructor. Implementa dar prioridad a un segmento sobre otro.
      * @param nTransitions numero de transiciones de la red de petri del monitor que implementa la politica.
-     * @param mode modo balanceado o prioridad de segmento.
      * @param segment segmendo a priorizar.
-     * @param laod carga del segmento a priorizar.
+     * @param load carga del segmento a priorizar.
      * @throws RuntimeException
      */
     Politic(int nTransitions, String segment, double load) throws RuntimeException {
